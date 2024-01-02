@@ -5,21 +5,14 @@
      <meta charset="UTF-8" />
    </head>
    <body>
-     <div class="grid-container grid-container-parent"></div>
+     <div class="grid-container grid-container-parent">
+      <img src="./photos-portf/0.jpg"></img>
+      <img src="./photos-portf/1.jpg"></img>
+      <img src="./photos-portf/2.jpg"></img>
+      <img src="./photos-portf/3.jpg"></img>
+      <img src="./photos-portf/4.jpg"></img>
+     </div>
    </body>
 
-  <script>
-    var imagePath="./photos-portf/";
-var numberOfImage=6;
-
-var parentDIV = document.getElementsByClassName("grid-container-parent")[0];
-
-for(var i=0;i<numberOfImage;i++){
-    var tempDIV= document.createElement('div');
-    tempDIV.setAttribute('class','grid-container');
-    var innerHTML= `<img src='https://raw.githubusercontent.com/BlockHander/bh-website/ba60a72f232ee3ad3e7e10601587a8af037f646f/photos-portf/`+(i)+`.png'></img>`
-    tempDIV.innerHTML=innerHTML;
-    parentDIV.appendChild(tempDIV);
-}
-  </script>
+  
 </html>
