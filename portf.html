@@ -13,41 +13,33 @@
       <img src="./photos-portf/4.jpg"></img>
      </div>
    </body>
-   <script>
-    var imgs = document.getElementsByTagName('img');
-
-
-// to be attached to each image's onclick event
-function imgScaleToggle() { 
-    // get current image size
-    var h=$(this).height(); 
-    var w=$(this).width(); 
-    // scale determines how much the image is to be magnified
-    var scale = 2.0;
-
-    // check if image has been clicked before
-    if($(this).hasClass("clicked")) {
-        var factor=1/scale;
-        $(this).removeClass("clicked");
-    } else {
-        var factor=scale;
-        $(this).addClass("clicked");
-    }
-    $(this).css("height", h*factor); 
-    $(this).css("width", w*factor); 
-}
-
-// attach the handler to all of the selected images' onclick methods
-imgs.onmouseup = function() {imgScaleToggle()};
-</script>
-
-
+   
   <style>
-    body {background-color: #f2f2f2; margin: 1em;}
-    img {
+    
+  body {background-color: #f2f2f2; margin: 1em;}
+  img {
       width: 23%;
       padding-right: 1.7em;
-
-    }
+  }
+  img:hover {
+    cursor: zoom-in;
+    transition: .5s;
+    transition-delay: 90s; /* how long before the img automatically returns to original size */
+    transition-property: -webkit-transform;
+    -webkit-transform: scale(1); 
+    -webkit-transform-origin: 0% 0%; /* set img position */
+    z-index: 999; 
+    position: sticky; /* this and z-index should ensure that the zoomed img is always displayed on top of any other element */
+  }
+  img:active { 
+    cursor: zoom-out;
+    -overflow: auto; /* Enable scroll if needed */
+    transition: 0s;
+    transition-delay: 0.05s;
+    transition-property: -webkit-transform;
+    -webkit-transform: scale(3.5); /* set zoom level */
+    -webkit-transform-origin: top left; /* set img position */
+    z-index: 1000; 
+  }
   </style>
 </html>
