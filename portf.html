@@ -38,16 +38,15 @@ function imgScaleToggle() {
 }
 
 // attach the handler to all of the selected images' onclick methods
-imgs.click( imgScaleToggle );
+imgs.onmouseup = function() {imgScaleToggle()};
 </script>
 
 
   <style>
-    body {background-color: #f2f2f2;}
-    grid-container {padding: 1em;}
+    body {background-color: #f2f2f2; margin: 1em;}
     img {
       width: 23%;
-      padding-right: .25em;
+      padding-right: 1.7em;
 
     }
   </style>
