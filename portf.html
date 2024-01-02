@@ -13,8 +13,37 @@
       <img src="./photos-portf/4.jpg"></img>
      </div>
    </body>
+   <script>
+    var imgs = $("img");
+
+
+// to be attached to each image's onclick event
+function imgScaleToggle() { 
+    // get current image size
+    var h=$(this).height(); 
+    var w=$(this).width(); 
+    // scale determines how much the image is to be magnified
+    var scale = 2.0;
+
+    // check if image has been clicked before
+    if($(this).hasClass("clicked")) {
+        var factor=1/scale;
+        $(this).removeClass("clicked");
+    } else {
+        var factor=scale;
+        $(this).addClass("clicked");
+    }
+    $(this).css("height", h*factor); 
+    $(this).css("width", w*factor); 
+}
+
+// attach the handler to all of the selected images' onclick methods
+imgs.click( imgScaleToggle );
+</script>
+
 
   <style>
+    body {background-color: #f2f2f2;}
     img {
       width: 23%;
       padding: 1em;
