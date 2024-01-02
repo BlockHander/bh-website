@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>blockhander</title>
+     <meta charset="UTF-8" />
+   </head>
+   <body>
+     <div class="grid-container grid-container-parent"></div>
+   </body>
+
+  <script>
+    var imagePath="./photos/";
+var numberOfImage=11;
+
+var parentDIV = document.getElementsByClassName("grid-container-parent")[0];
+
+for(var i=0;i<numberOfImage;i++){
+    var tempDIV= document.createElement('div');
+    tempDIV.setAttribute('class','grid-container');
+    var innerHTML= `<img src='`+(imagePath+i)+`.png'></img>`
+    tempDIV.innerHTML=innerHTML;
+    parentDIV.appendChild(tempDIV);
+}
+  </script>
+</html>
