@@ -17,11 +17,7 @@ var parentDIV = document.getElementsByClassName("grid-container-parent")[0];
 for(var i=0;i<numberOfImage;i++){
     var tempDIV= document.createElement('div');
     tempDIV.setAttribute('class','grid-container');
-<<<<<<< HEAD
-    var innerHTML= `<img src='`+(imagePath+i)+`.jpeg'></img>`
-=======
     var innerHTML= `<img src='./photos-portf/`+(i)+`.png'></img>`
->>>>>>> bfac7d4 (yes)
     tempDIV.innerHTML=innerHTML;
     parentDIV.appendChild(tempDIV);
 }
