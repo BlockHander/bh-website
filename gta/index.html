@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d100e">
+  <meta name="description" content="A static PlayGTA5 client shell. Game files and playable runtime are not included.">
+  <title>PlayGTA5 shell · BlockHander</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --black: #0d100e;
+      --panel: #151a16;
+      --line: #333a33;
+      --paper: #edf0e8;
+      --muted: #9ca79b;
+      --lime: #c8ee68;
+      --orange: #f2a55d;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-width: 320px; background: var(--black); }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--paper);
+      background:
+        radial-gradient(ellipse at 50% 34%, rgba(87, 111, 66, .12), transparent 36rem),
+        var(--black);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    a { color: inherit; }
+
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--lime);
+      outline-offset: 4px;
+    }
+
+    .page { width: min(100% - 48px, 1120px); margin: 0 auto; }
+
+    .topbar {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      font: 10px/1.5 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .brand { display: flex; align-items: center; gap: 11px; }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--lime);
+      color: var(--lime);
+      font: 14px/1 var(--display);
+    }
+
+    .top-status { color: var(--muted); }
+    .top-status b { color: var(--orange); font-weight: 500; }
+
+    main { padding: clamp(42px, 8vw, 82px) 0 56px; }
+
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      margin: 0 0 13px;
+      color: var(--lime);
+      font: 10px/1.5 var(--mono);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font: clamp(48px, 8vw, 84px)/.82 var(--display);
+      letter-spacing: .015em;
+    }
+
+    h1 span { color: var(--lime); }
+
+    .build-tag {
+      flex: 0 0 auto;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font: 9px/1.4 var(--mono);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .client {
+      border: 1px solid #414940;
+      background: rgba(16, 20, 17, .9);
+      box-shadow: 0 26px 90px rgba(0, 0, 0, .32);
+    }
+
+    .client-bar {
+      min-height: 43px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 15px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font: 9px/1.4 var(--mono);
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .window-dots { display: flex; gap: 5px; }
+    .window-dots i { width: 6px; height: 6px; border-radius: 50%; background: #535d52; }
+    .window-dots i:first-child { background: var(--orange); }
+
+    .screen {
+      min-height: 430px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, transparent 57%, rgba(0, 0, 0, .52)),
+        repeating-linear-gradient(0deg, transparent 0 4px, rgba(255,255,255,.018) 5px),
+        radial-gradient(ellipse at 50% 76%, rgba(112, 133, 78, .16), transparent 40%),
+        #090c0a;
+    }
+
+    .screen::before {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent 49.9%, rgba(206, 231, 170, .07) 50%, transparent 50.1%),
+        linear-gradient(0deg, transparent 49.9%, rgba(206, 231, 170, .07) 50%, transparent 50.1%);
+      content: "";
+    }
+
+    .screen::after {
+      width: min(47vw, 440px);
+      aspect-ratio: 1;
+      position: absolute;
+      border: 1px solid rgba(200, 238, 104, .14);
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 42px rgba(200, 238, 104, .018), inset 0 0 0 43px rgba(200, 238, 104, .08);
+      content: "";
+    }
+
+    .screen-corner {
+      position: absolute;
+      z-index: 1;
+      top: 18px;
+      left: 20px;
+      color: #758174;
+      font: 9px/1.5 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .screen-corner.right { right: 20px; left: auto; text-align: right; }
+
+    .message {
+      position: relative;
+      z-index: 2;
+      width: min(100% - 36px, 430px);
+      padding: 32px 26px;
+      border: 1px solid rgba(200, 238, 104, .22);
+      background: rgba(12, 15, 12, .85);
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .message-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 18px;
+      border: 1px solid rgba(242, 165, 93, .6);
+      border-radius: 50%;
+      color: var(--orange);
+      font: 18px/1 var(--mono);
+    }
+
+    .message h2 {
+      margin: 0;
+      font: clamp(27px, 5vw, 39px)/.98 var(--display);
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .message p {
+      max-width: 330px;
+      margin: 13px auto 0;
+      color: #aab1a6;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .client-controls {
+      min-height: 73px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 13px 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .control-copy { color: var(--muted); font: 9px/1.6 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+    .control-copy strong { color: var(--orange); font-weight: 500; }
+
+    .controls { display: flex; align-items: center; gap: 10px; }
+
+    .play-button, .source-link {
+      min-height: 39px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      font: 9px/1 var(--mono);
+      letter-spacing: .08em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .play-button {
+      color: #70786e;
+      background: #20251f;
+      cursor: not-allowed;
+    }
+
+    .source-link { border-color: rgba(200, 238, 104, .48); color: var(--lime); }
+    .source-link:hover { background: rgba(200, 238, 104, .08); }
+
+    .footnotes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .note { min-height: 90px; padding: 17px 19px; }
+    .note + .note { border-left: 1px solid var(--line); }
+
+    .note-label {
+      display: block;
+      margin-bottom: 9px;
+      color: #7e887d;
+      font: 9px/1.4 var(--mono);
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .note-value { color: #d1d7cb; font: 11px/1.5 var(--mono); text-transform: uppercase; }
+
+    .disclaimer {
+      display: flex;
+      align-items: start;
+      gap: 14px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .disclaimer::before { width: 2px; min-height: 34px; flex: 0 0 2px; background: var(--orange); content: ""; }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 19px 0 25px;
+      border-top: 1px solid var(--line);
+      color: #788177;
+      font: 9px/1.5 var(--mono);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 640px) {
+      .page { width: min(100% - 28px, 520px); }
+      .topbar { min-height: 64px; font-size: 8px; }
+      .brand { gap: 8px; }
+      .top-status { max-width: 140px; text-align: right; }
+      main { padding-top: 48px; }
+      .intro { align-items: start; flex-direction: column; gap: 17px; }
+      h1 { font-size: clamp(55px, 14vw, 76px); }
+      .screen { min-height: 350px; }
+      .screen::after { width: min(72vw, 300px); }
+      .message { padding: 24px 17px; }
+      .client-controls { align-items: start; flex-direction: column; }
+      .controls { width: 100%; }
+      .play-button, .source-link { flex: 1; padding: 0 8px; font-size: 8px; }
+      .footnotes { grid-template-columns: 1fr; }
+      .note { min-height: 0; padding: 14px 16px; }
+      .note + .note { border-top: 1px solid var(--line); border-left: 0; }
+      footer { flex-direction: column; gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">B</span><span>BlockHander / GTA</span></div>
+      <span class="top-status">Client status: <b>shell only</b></span>
+    </header>
+
+    <main>
+      <div class="intro">
+        <div>
+          <p class="eyebrow">Browser client · static shell</p>
+          <h1>Play<span>GTA5</span></h1>
+        </div>
+        <span class="build-tag">Site frame / 01</span>
+      </div>
+
+      <section class="client" aria-labelledby="client-title">
+        <div class="client-bar">
+          <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span id="client-title">PlayGTA5 browser client</span>
+          <span>Build 00.1</span>
+        </div>
+
+        <div class="screen" role="status" aria-live="polite">
+          <span class="screen-corner">Session / offline</span>
+          <span class="screen-corner right">Runtime / absent</span>
+          <div class="message">
+            <span class="message-mark" aria-hidden="true">!</span>
+            <h2>Game data not installed</h2>
+            <p>This site shell is live. The game files needed to start a session are not included, so gameplay is unavailable.</p>
+          </div>
+        </div>
+
+        <div class="client-controls">
+          <span class="control-copy">Launch state<br><strong>Unavailable</strong></span>
+          <div class="controls">
+            <button class="play-button" type="button" disabled aria-disabled="true">Gameplay unavailable</button>
+            <a class="source-link" href="https://github.com/alihammoud21/playgta5" target="_blank" rel="noopener noreferrer">View project ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="footnotes" aria-label="Included and excluded parts">
+        <div class="note"><span class="note-label">Included</span><span class="note-value">Static page shell</span></div>
+        <div class="note"><span class="note-label">Not included</span><span class="note-value">Game data and runtime files</span></div>
+        <div class="note"><span class="note-label">Expected result</span><span class="note-value">No playable game</span></div>
+      </section>
+
+      <p class="disclaimer">This route is a standalone interface skeleton. It does not load the linked project’s code, runtime, or game data, and it is intentionally non-playable.</p>
+    </main>
+
+    <footer>
+      <span>BlockHander · Static client shell</span>
+      <span>Game content intentionally omitted</span>
+    </footer>
+  </div>
+</body>
+</html>
