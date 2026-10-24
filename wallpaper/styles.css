@@ -88,7 +88,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 .wallpaper-topline { position: absolute; z-index: 1; top: 5.4vh; right: max(5vw, 190px); left: 5.2vw; display: flex; align-items: center; justify-content: space-between; gap: 20px; font-family: var(--ui); font-size: clamp(10px, .72vw, 12px); letter-spacing: .08em; }
 .wallpaper-wordmark { display: inline-flex; align-items: center; gap: 13px; white-space: nowrap; }
 .wallpaper-wordmark i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .7; }
-.wallpaper-layout { position: absolute; z-index: 1; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(290px, 31vw); align-items: center; column-gap: 7vw; padding: 14vh 11vw 14vh 9vw; transition: padding 350ms var(--spring), column-gap 350ms var(--spring); }
+.wallpaper-layout { position: absolute; z-index: 1; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(290px, 31vw); grid-template-rows: minmax(0, 1fr) auto; align-items: center; column-gap: 7vw; padding: 14vh 11vw 14vh 9vw; transition: padding 350ms var(--spring), column-gap 350ms var(--spring); }
 .wallpaper-date-block { position: relative; z-index: 1; display: grid; justify-items: start; align-content: center; min-width: 0; }
 .wallpaper-month, .wallpaper-weekday { font-family: var(--mono); font-size: clamp(12px, .9vw, 15px); letter-spacing: .16em; }
 .wallpaper-month { margin: 0 0 .18em .05em; }
@@ -116,7 +116,10 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
 .wallpaper-art[data-show-calendar="false"] .mini-calendar { display: none; }
 .wallpaper-art[data-show-calendar="false"] .wallpaper-layout { grid-template-columns: minmax(0, 1fr); }
 
-.agenda-preview { position: absolute; z-index: 2; right: 11vw; bottom: 13vh; width: min(405px, 31vw); padding: 17px 0 0; border-top: 1px solid color-mix(in srgb, var(--wallpaper-ink) 24%, transparent); color: var(--wallpaper-ink); }
+.agenda-preview { position: relative; z-index: 2; grid-column: 2; grid-row: 2; align-self: start; justify-self: start; width: min(405px, 100%); margin-top: 24px; padding: 17px 14px 0; border-top: 1px solid color-mix(in srgb, var(--wallpaper-ink) 24%, transparent); color: var(--wallpaper-ink); }
+.wallpaper-art[data-layout="big-date"] .agenda-preview,
+.wallpaper-art[data-layout="minimal"] .agenda-preview,
+.wallpaper-art[data-show-calendar="false"] .agenda-preview { grid-column: 1; justify-self: end; width: min(405px, 31vw); }
 .agenda-heading { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .13em; }
 .agenda-heading span:last-child { opacity: .62; }
 .agenda-item { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 12px; padding: 6px 0; font-size: clamp(12px, .91vw, 15px); line-height: 1.35; }
@@ -265,7 +268,10 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
   .wallpaper-art[data-layout="calendar"] .wallpaper-layout { grid-template-columns: minmax(0, 1fr); row-gap: 25px; }
   .wallpaper-art[data-layout="calendar"] .wallpaper-date-block strong { font-size: clamp(150px, 40vw, 240px); }
   .wallpaper-art[data-ratio="16:9"] .wallpaper-layout { padding-inline: 10vw; }
-  .agenda-preview { position: relative; right: auto; bottom: auto; width: auto; margin: 0 10vw 118px; }
+  .agenda-preview { grid-column: 1; grid-row: auto; width: auto; margin: 0; }
+  .wallpaper-art[data-layout="big-date"] .agenda-preview,
+  .wallpaper-art[data-layout="minimal"] .agenda-preview,
+  .wallpaper-art[data-show-calendar="false"] .agenda-preview { justify-self: stretch; width: auto; }
   .wallpaper-footer { right: 20px; bottom: max(18px, env(safe-area-inset-bottom)); left: 20px; font-size: 8px; letter-spacing: .07em; }
   .customize-button { top: max(14px, env(safe-area-inset-top)); right: 14px; min-height: 41px; gap: 8px; padding-inline: 11px; font-size: 11px; }
   .settings-dialog { inset: auto 0 max(8px, env(safe-area-inset-bottom)); width: min(480px, calc(100vw - 16px)); max-height: min(72vh, calc(100dvh - 48px)); margin-inline: auto; border-radius: 23px; }
