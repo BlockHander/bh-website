@@ -19,6 +19,7 @@ const query = new URLSearchParams(window.location.search);
 const pageBaseUrl = new URL("./", window.location.href);
 const localHostnames = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const localApiBaseUrl = localHostnames.has(window.location.hostname) ? new URL("api/", pageBaseUrl) : null;
+const localIcalOnlyMessage = "iCal sync works on the local wallpaper at http://127.0.0.1:4173/ while its server is running.";
 const colorSchemePreference = window.matchMedia("(prefers-color-scheme: dark)");
 let prefersDarkScheme = colorSchemePreference.matches;
 const monthPicker = document.querySelector("[data-month-picker]");
@@ -68,12 +69,6 @@ function validCalendarUrl(value) {
   } catch {
     return "";
   }
-}
-
-function browserCalendarUrl(value) {
-  const url = new URL(value);
-  if (url.protocol === "webcal:") url.protocol = "https:";
-  return url.href;
 }
 
 function localApiUrl(path) {
@@ -719,10 +714,7 @@ async function fetchCalendar(calendar) {
   try {
     const controller = new AbortController();
     timer = window.setTimeout(() => controller.abort(), 15000);
-    const requestUrl = localApiBaseUrl
-      ? `${localApiUrl("ical")}?url=${encodeURIComponent(calendar.url)}`
-      : browserCalendarUrl(calendar.url);
-    const response = await fetch(requestUrl, {
+    const response = await fetch(`${localApiUrl("ical")}?url=${encodeURIComponent(calendar.url)}`, {
       method: "GET", cache: "no-store", signal: controller.signal,
       headers: { Accept: "text/calendar,text/plain;q=0.9,*/*;q=0.5" },
     });
@@ -744,9 +736,7 @@ async function fetchCalendar(calendar) {
     const message = timeout
       ? "The calendar took too long to respond."
       : error instanceof TypeError
-        ? localApiBaseUrl
-          ? "The wallpaper server could not be reached. Keep the local server running."
-          : "This site cannot read the feed directly. The calendar provider may block browser access; a hosted iCal proxy is required."
+        ? "The wallpaper server could not be reached. Keep the local server running."
         : error.message || "Couldn’t refresh the calendar.";
     return { ok: false, timeout, message };
   } finally {
@@ -759,6 +749,12 @@ async function fetchCalendar(calendar) {
 async function refreshCalendar(calendarId, { silent = false } = {}) {
   const calendar = state.calendars.find((entry) => entry.id === calendarId);
   if (!calendar) return;
+  if (!localApiBaseUrl) {
+    calendar.error = true;
+    renderCalendarList();
+    updateCalendarStatus(localIcalOnlyMessage, "error");
+    return;
+  }
   if (!silent) updateCalendarStatus(`Checking ${calendar.name}…`);
   const result = await fetchCalendar(calendar);
   if (result.skipped) return;
@@ -772,6 +768,10 @@ async function refreshCalendar(calendarId, { silent = false } = {}) {
 
 async function refreshCalendars(silent = false) {
   if (!state.calendars.length) return;
+  if (!localApiBaseUrl) {
+    updateCalendarStatus(localIcalOnlyMessage, "error");
+    return;
+  }
   if (!silent) updateCalendarStatus(`Refreshing ${state.calendars.length} ${state.calendars.length === 1 ? "calendar" : "calendars"}…`);
   const results = await Promise.all(state.calendars.map((calendar) => fetchCalendar(calendar)));
   const failures = results.filter((result) => !result.ok && !result.skipped).length;
@@ -912,7 +912,7 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
     syncLocalDate();
     const lastSync = Math.max(0, ...state.calendars.map((calendar) => Date.parse(calendar.lastSync) || 0));
-    if (state.calendars.length && lastSync && Date.now() - lastSync > 15 * 60 * 1000) refreshCalendars(true);
+    if (localApiBaseUrl && state.calendars.length && lastSync && Date.now() - lastSync > 15 * 60 * 1000) refreshCalendars(true);
   }
 });
 window.addEventListener("focus", syncLocalDate);
@@ -936,7 +936,7 @@ loadSettingsFile().then(() => {
   refreshCalendars(true);
 });
 window.setInterval(() => {
-  if (state.calendars.length && !document.hidden) refreshCalendars(true);
+  if (localApiBaseUrl && state.calendars.length && !document.hidden) refreshCalendars(true);
 }, 15 * 60 * 1000);
 window.addEventListener("pagehide", () => {
   if (settingsSaveTimer) saveSettingsFile(true);
