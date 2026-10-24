@@ -41,6 +41,25 @@ const refreshAllButton = document.querySelector("[data-refresh-calendars]");
 const calendarList = document.querySelector("[data-calendar-list]");
 const calendarStatus = document.querySelector("[data-calendar-status]");
 const toast = document.querySelector("[data-toast]");
+const weatherWidget = document.querySelector("[data-weather-widget]");
+const weatherLocationLabel = document.querySelector("[data-weather-location]");
+const weatherIcon = document.querySelector("[data-weather-icon]");
+const weatherTemperature = document.querySelector("[data-weather-temperature]");
+const weatherSummary = document.querySelector("[data-weather-summary]");
+const weatherRange = document.querySelector("[data-weather-range]");
+const weatherRefreshButton = document.querySelector("[data-weather-refresh]");
+const weatherSelectedLocation = document.querySelector("[data-weather-selected-location]");
+const weatherSearchForm = document.querySelector("[data-weather-search-form]");
+const weatherSearchButton = document.querySelector("[data-weather-search]");
+const weatherLocationInput = document.querySelector("[name='location']");
+const weatherLocationResults = document.querySelector("[data-weather-results]");
+const weatherSettingsStatus = document.querySelector("[data-weather-status]");
+const currentLocationButton = document.querySelector("[data-use-current-location]");
+const weatherRequests = new Map();
+const weatherCache = new Map();
+let weatherSearchResults = [];
+let weatherStatusMessage = "";
+let weatherStatusState = "";
 
 let today = new Date();
 let year = today.getFullYear();
@@ -117,6 +136,7 @@ function legacySettings() {
     layout: ["combined", "big-date", "calendar", "minimal"].includes(query.get("layout")) ? query.get("layout") : "combined",
     showCalendar: query.get("calendar") !== "off",
     showAgenda: query.get("agenda") === "on",
+    showWeather: query.get("weather") !== "off",
     ratio: query.get("ratio") === "16:9" ? "16:9" : "16:10",
     followLocalDate,
   };
@@ -130,6 +150,8 @@ function defaultSettings() {
     layout: "combined",
     showCalendar: true,
     showAgenda: false,
+    showWeather: true,
+    weatherLocation: null,
     ratio: "16:10",
     followLocalDate: true,
     calendars: [],
@@ -200,10 +222,21 @@ function normalizeSettings(value) {
     layout: ["combined", "big-date", "calendar", "minimal"].includes(source.layout) ? source.layout : "combined",
     showCalendar: source.showCalendar !== false,
     showAgenda: source.showAgenda === true,
+    showWeather: source.showWeather !== false,
+    weatherLocation: normalizeWeatherLocation(source.weatherLocation),
     ratio: source.ratio === "16:9" ? "16:9" : "16:10",
     followLocalDate: source.followLocalDate !== false,
     calendars: sourceCalendars.map(normalizeCalendar).filter(Boolean),
   };
+}
+
+function normalizeWeatherLocation(location) {
+  if (!location || typeof location !== "object") return null;
+  const { latitude, longitude } = location;
+  if (typeof latitude !== "number" || typeof longitude !== "number") return null;
+  if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) return null;
+  const name = typeof location.name === "string" && location.name.trim() ? location.name.trim().slice(0, 100) : "Selected location";
+  return { latitude, longitude, name };
 }
 
 const saved = storedSettings();
@@ -344,6 +377,9 @@ function syncControls() {
   const agendaToggle = document.querySelector("[data-toggle-agenda]");
   agendaToggle.setAttribute("aria-pressed", String(state.showAgenda));
   agendaToggle.setAttribute("aria-label", `${state.showAgenda ? "Hide" : "Show"} today's events`);
+  const weatherToggle = document.querySelector("[data-toggle-weather]");
+  weatherToggle.setAttribute("aria-pressed", String(state.showWeather));
+  weatherToggle.setAttribute("aria-label", `${state.showWeather ? "Hide" : "Show"} weather`);
 
   const followMonthToggle = document.querySelector("[data-toggle-follow-month]");
   followMonthToggle.setAttribute("aria-pressed", String(state.followLocalDate));
@@ -378,6 +414,10 @@ function render() {
   wallpaper.dataset.layout = state.layout;
   wallpaper.dataset.ratio = state.ratio;
   wallpaper.dataset.showCalendar = String(state.showCalendar);
+  wallpaper.dataset.showAgenda = String(state.showAgenda);
+  wallpaper.dataset.showWeather = String(state.showWeather);
+  const hasWidgets = state.showAgenda || state.showWeather || (state.showCalendar && !["big-date", "minimal"].includes(state.layout));
+  wallpaper.dataset.hasWidgets = String(hasWidgets);
   wallpaper.setAttribute("aria-label", `${calendarMonth.name} ${year} calendar wallpaper with ${month.name} seasonal colors`);
 
   document.querySelector("[data-wallpaper-month]").textContent = `${calendarMonth.name.toUpperCase()} ${year}`;
@@ -391,11 +431,214 @@ function render() {
 
   miniCalendar.hidden = !state.showCalendar;
   agenda.hidden = !state.showAgenda;
+  weatherWidget.hidden = !state.showWeather;
+  renderWeather();
   renderAgendaItems();
   renderCalendar();
   renderMonthPicker();
   syncControls();
   persist();
+}
+
+function weatherLocationKey(location = state.weatherLocation) {
+  if (!location) return "";
+  const unit = /^en-US(?:-|$)/i.test(navigator.language || "") ? "fahrenheit" : "celsius";
+  return `${location.latitude.toFixed(4)},${location.longitude.toFixed(4)},${unit}`;
+}
+
+function renderWeather() {
+  const location = state.weatherLocation;
+  const key = weatherLocationKey(location);
+  weatherLocationLabel.textContent = location?.name || "Location not set";
+  weatherSelectedLocation.textContent = location?.name || "No location selected";
+  weatherRefreshButton.disabled = !location;
+  weatherSettingsStatus.textContent = weatherStatusMessage;
+  weatherSettingsStatus.dataset.state = weatherStatusState;
+
+  if (!location) {
+    weatherTemperature.textContent = "—°";
+    weatherIcon.textContent = "☼";
+    weatherSummary.textContent = "Set a location to see current conditions.";
+    weatherRange.textContent = "";
+    return;
+  }
+
+  const cached = weatherCache.get(key);
+  if (cached) showWeatherReading(cached);
+  else {
+    weatherTemperature.textContent = "—°";
+    weatherIcon.textContent = "…";
+    weatherSummary.textContent = "Loading local conditions…";
+    weatherRange.textContent = "";
+  }
+  if (state.showWeather && (!cached || Date.now() - cached.fetchedAt > 30 * 60 * 1000)) loadWeather();
+}
+
+function weatherDescription(code, isDay) {
+  if (code === 0) return { label: isDay ? "Clear sky" : "Clear night", icon: isDay ? "☀" : "☾" };
+  if (code === 1) return { label: "Mostly clear", icon: isDay ? "◐" : "☾" };
+  if (code === 2) return { label: "Partly cloudy", icon: "◐" };
+  if (code === 3) return { label: "Overcast", icon: "☁" };
+  if ([45, 48].includes(code)) return { label: "Fog", icon: "≋" };
+  if ([51, 53, 55, 56, 57].includes(code)) return { label: "Drizzle", icon: "☂" };
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { label: "Rain", icon: "☂" };
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return { label: "Snow", icon: "❄" };
+  if ([95, 96, 99].includes(code)) return { label: "Thunderstorm", icon: "ϟ" };
+  return { label: "Conditions unavailable", icon: "—" };
+}
+
+function showWeatherReading(reading) {
+  const description = weatherDescription(reading.code, reading.isDay);
+  const unit = reading.unit === "fahrenheit" ? "°F" : "°C";
+  weatherIcon.textContent = description.icon;
+  weatherTemperature.textContent = `${Math.round(reading.temperature)}${unit}`;
+  weatherSummary.textContent = description.label;
+  weatherRange.textContent = `H ${Math.round(reading.high)}${unit}  ·  L ${Math.round(reading.low)}${unit}`;
+}
+
+async function loadWeather(force = false) {
+  const location = state.weatherLocation;
+  const key = weatherLocationKey(location);
+  if (!location || !key) return;
+  const cached = weatherCache.get(key);
+  if (!force && cached && Date.now() - cached.fetchedAt < 30 * 60 * 1000) {
+    showWeatherReading(cached);
+    return;
+  }
+  if (weatherRequests.has(key)) return weatherRequests.get(key);
+
+  const unit = key.endsWith(",fahrenheit") ? "fahrenheit" : "celsius";
+  const endpoint = new URL("https://api.open-meteo.com/v1/forecast");
+  endpoint.search = new URLSearchParams({
+    latitude: String(location.latitude),
+    longitude: String(location.longitude),
+    current: "temperature_2m,weather_code,is_day",
+    daily: "temperature_2m_max,temperature_2m_min",
+    temperature_unit: unit,
+    timezone: "auto",
+    forecast_days: "1",
+  }).toString();
+  const request = (async () => {
+    try {
+      const response = await fetch(endpoint, { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error("Weather service unavailable.");
+      const result = await response.json();
+      const current = result.current;
+      const high = result.daily?.temperature_2m_max?.[0];
+      const low = result.daily?.temperature_2m_min?.[0];
+      if (![current?.temperature_2m, current?.weather_code, high, low].every(Number.isFinite)) throw new Error("Weather data is incomplete.");
+      const reading = {
+        temperature: current.temperature_2m,
+        code: current.weather_code,
+        isDay: current.is_day === 1,
+        high,
+        low,
+        unit,
+        fetchedAt: Date.now(),
+      };
+      weatherCache.set(key, reading);
+      if (weatherLocationKey() === key) showWeatherReading(reading);
+    } catch {
+      if (weatherLocationKey() === key && !weatherCache.has(key)) {
+        weatherTemperature.textContent = "—°";
+        weatherIcon.textContent = "!";
+        weatherSummary.textContent = "Weather is unavailable right now.";
+        weatherRange.textContent = "Try refreshing in a moment.";
+      }
+    } finally {
+      weatherRequests.delete(key);
+    }
+  })();
+  weatherRequests.set(key, request);
+  return request;
+}
+
+function setWeatherSettingsStatus(message, stateName = "") {
+  weatherStatusMessage = message;
+  weatherStatusState = stateName;
+  weatherSettingsStatus.textContent = message;
+  weatherSettingsStatus.dataset.state = stateName;
+}
+
+function formatGeocodedLocation(result) {
+  return [...new Set([result.name, result.admin1, result.country].filter((part) => typeof part === "string" && part.trim()))]
+    .filter((part, index, parts) => index === 0 || part.toLocaleLowerCase() !== parts[index - 1].toLocaleLowerCase())
+    .join(", ");
+}
+
+function selectWeatherLocation(location) {
+  state.weatherLocation = normalizeWeatherLocation(location);
+  weatherLocationResults.replaceChildren();
+  setWeatherSettingsStatus(`Weather set to ${state.weatherLocation.name}.`, "success");
+  render();
+}
+
+async function searchWeatherLocations(event) {
+  event.preventDefault();
+  const search = weatherLocationInput.value.trim();
+  if (search.length < 2) {
+    setWeatherSettingsStatus("Enter at least two letters to search.", "error");
+    weatherLocationInput.focus();
+    return;
+  }
+  weatherSearchButton.disabled = true;
+  weatherLocationResults.replaceChildren();
+  setWeatherSettingsStatus("Searching locations…");
+  try {
+    const endpoint = new URL("https://geocoding-api.open-meteo.com/v1/search");
+    endpoint.search = new URLSearchParams({ name: search, count: "5", language: navigator.language?.split("-")[0] || "en", format: "json" }).toString();
+    const response = await fetch(endpoint, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("Location search unavailable.");
+    const result = await response.json();
+    weatherSearchResults = Array.isArray(result.results) ? result.results : [];
+    if (!weatherSearchResults.length) {
+      setWeatherSettingsStatus("No matching locations found.");
+      return;
+    }
+    const fragment = document.createDocumentFragment();
+    weatherSearchResults.forEach((place, index) => {
+      const item = document.createElement("div");
+      item.setAttribute("role", "listitem");
+      const button = document.createElement("button");
+      button.className = "weather-location-result";
+      button.type = "button";
+      button.dataset.weatherResultIndex = String(index);
+      button.textContent = formatGeocodedLocation(place);
+      item.append(button);
+      fragment.append(item);
+    });
+    weatherLocationResults.replaceChildren(fragment);
+    setWeatherSettingsStatus(`${weatherSearchResults.length} locations found. Choose one to update the widget.`);
+  } catch {
+    setWeatherSettingsStatus("Couldn’t search locations. Check your connection and try again.", "error");
+  } finally {
+    weatherSearchButton.disabled = false;
+  }
+}
+
+function useCurrentLocation() {
+  if (!navigator.geolocation) {
+    setWeatherSettingsStatus("This browser doesn’t provide device location. Search for a city instead.", "error");
+    return;
+  }
+  currentLocationButton.disabled = true;
+  setWeatherSettingsStatus("Waiting for this device’s location permission…");
+  navigator.geolocation.getCurrentPosition((position) => {
+    currentLocationButton.disabled = false;
+    selectWeatherLocation({
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      name: "Current location",
+    });
+  }, (error) => {
+    currentLocationButton.disabled = false;
+    const message = error.code === 1
+      ? "Location permission was denied. Search for a city or allow location in browser settings."
+      : error.code === 3
+        ? "Location took too long. Try again or search for a city."
+        : "Couldn’t read this device’s location. Search for a city instead.";
+    setWeatherSettingsStatus(message, "error");
+  }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 10 * 60 * 1000 });
 }
 
 function renderAgendaItems() {
@@ -853,6 +1096,21 @@ document.querySelectorAll("[data-layout-choice]").forEach((button) => button.add
 document.querySelectorAll("[data-aspect-choice]").forEach((button) => button.addEventListener("click", () => { state.ratio = button.dataset.aspectChoice; render(); }));
 document.querySelector("[data-toggle-calendar]").addEventListener("click", () => { state.showCalendar = !state.showCalendar; render(); });
 document.querySelector("[data-toggle-agenda]").addEventListener("click", () => { state.showAgenda = !state.showAgenda; render(); });
+document.querySelector("[data-toggle-weather]").addEventListener("click", () => { state.showWeather = !state.showWeather; render(); });
+weatherSearchForm.addEventListener("submit", searchWeatherLocations);
+weatherLocationResults.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-weather-result-index]");
+  if (!button) return;
+  const result = weatherSearchResults[Number(button.dataset.weatherResultIndex)];
+  if (!result) return;
+  selectWeatherLocation({ latitude: result.latitude, longitude: result.longitude, name: formatGeocodedLocation(result) });
+});
+currentLocationButton.addEventListener("click", useCurrentLocation);
+document.querySelector("[data-weather-refresh]").addEventListener("click", () => loadWeather(true));
+document.querySelector("[data-weather-open-settings]").addEventListener("click", () => {
+  customizeButton.click();
+  window.requestAnimationFrame(() => document.querySelector("[data-weather-settings]").scrollIntoView({ block: "center", behavior: "smooth" }));
+});
 
 document.querySelector("[data-reset-settings]").addEventListener("click", () => {
   state.month = currentMonth;
@@ -861,6 +1119,7 @@ document.querySelector("[data-reset-settings]").addEventListener("click", () => 
   state.layout = "combined";
   state.showCalendar = true;
   state.showAgenda = false;
+  state.showWeather = true;
   state.ratio = "16:10";
   state.followLocalDate = true;
   render();
@@ -1063,6 +1322,7 @@ document.addEventListener("visibilitychange", () => {
     syncLocalDate();
     const lastSync = Math.max(0, ...state.calendars.map((calendar) => Date.parse(calendar.lastSync) || 0));
     if (state.calendars.length && lastSync && Date.now() - lastSync > 15 * 60 * 1000) refreshCalendars(true);
+    if (state.showWeather && state.weatherLocation) loadWeather();
   }
 });
 window.addEventListener("focus", syncLocalDate);
@@ -1087,6 +1347,7 @@ loadSettingsFile().then(() => {
 });
 window.setInterval(() => {
   if (state.calendars.length && !document.hidden) refreshCalendars(true);
+  if (state.showWeather && state.weatherLocation && !document.hidden) loadWeather();
 }, 15 * 60 * 1000);
 window.addEventListener("pagehide", () => {
   if (settingsSaveTimer) saveSettingsFile(true);

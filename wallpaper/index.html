@@ -135,14 +135,36 @@
           <strong data-wallpaper-day>23</strong>
           <span class="wallpaper-weekday" data-wallpaper-weekday>FRIDAY</span>
         </div>
-        <section class="mini-calendar" data-calendar aria-label="October 2026 calendar">
-          <div class="mini-calendar-top"><span data-calendar-title>OCTOBER</span><span data-calendar-year>2026</span></div>
-          <div class="calendar-grid" data-calendar-grid role="grid" aria-label="October 2026"></div>
-        </section>
-        <section class="agenda-preview" data-agenda hidden aria-label="Today's events">
-          <div class="agenda-heading"><span>YOUR DAY</span><span data-agenda-date>OCT 23</span></div>
-          <div class="agenda-items" data-agenda-items></div>
-        </section>
+        <div class="wallpaper-widgets" role="group" aria-label="Calendar, events, and weather widgets">
+          <section class="mini-calendar wallpaper-widget" data-calendar aria-label="October 2026 calendar">
+            <div class="mini-calendar-top"><span data-calendar-title>OCTOBER</span><span data-calendar-year>2026</span></div>
+            <div class="calendar-grid" data-calendar-grid role="grid" aria-label="October 2026"></div>
+          </section>
+          <section class="agenda-preview wallpaper-widget" data-agenda hidden aria-label="Today's events">
+            <div class="agenda-heading"><span>YOUR DAY</span><span data-agenda-date>OCT 23</span></div>
+            <div class="agenda-items" data-agenda-items></div>
+          </section>
+          <section class="weather-widget wallpaper-widget" data-weather-widget aria-label="Local weather">
+            <div class="weather-widget-top">
+              <span class="weather-eyebrow">LOCAL WEATHER</span>
+              <span class="weather-location" data-weather-location>Location not set</span>
+            </div>
+            <div class="weather-reading">
+              <span class="weather-icon" data-weather-icon aria-hidden="true">☼</span>
+              <div class="weather-reading-copy">
+                <div class="weather-temperature-line"><strong data-weather-temperature>—°</strong><span data-weather-summary>Add a location to see conditions.</span></div>
+                <span class="weather-range" data-weather-range></span>
+              </div>
+            </div>
+            <div class="weather-widget-bottom">
+              <a class="weather-attribution" href="https://open-meteo.com/" target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
+              <div class="weather-widget-actions">
+                <button class="weather-action" type="button" data-weather-refresh aria-label="Refresh weather" title="Refresh weather">↻</button>
+                <button class="weather-action" type="button" data-weather-open-settings>Set location</button>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
 
       <div class="wallpaper-footer">
@@ -210,6 +232,22 @@
           <p class="privacy-note">Local files stay in this browser. Feed links connect directly to their provider.</p>
         </section>
 
+        <section class="control-section weather-settings" data-weather-settings aria-labelledby="weather-settings-heading">
+          <div class="control-heading"><div><h2 id="weather-settings-heading">Weather location</h2><p>Use this device’s location or search for a city.</p></div></div>
+          <div class="weather-selected-location"><span data-weather-selected-location>No location selected</span></div>
+          <button class="button button-subtle weather-current-location" type="button" data-use-current-location>Use current location</button>
+          <form class="weather-location-form" data-weather-search-form>
+            <label class="visually-hidden" for="weather-location-query">Search city or town</label>
+            <div class="weather-location-search">
+              <input class="weather-location-input" id="weather-location-query" name="location" type="search" maxlength="100" autocomplete="off" placeholder="Search city or town">
+              <button class="button button-primary" type="submit" data-weather-search>Search</button>
+            </div>
+            <div class="weather-location-results" data-weather-results role="list" aria-label="Location search results"></div>
+          </form>
+          <p class="calendar-status" data-weather-status role="status" aria-live="polite"></p>
+          <p class="privacy-note">Your selected location is saved with this device’s wallpaper settings. Weather data by Open-Meteo.</p>
+        </section>
+
         <section class="control-section" aria-labelledby="treatment-heading">
           <div class="control-heading"><div><h2 id="treatment-heading">Color treatment</h2></div></div>
           <div class="segmented-control" role="group" aria-label="Color treatment">
@@ -253,6 +291,10 @@
           <div class="toggle-row">
             <span><strong>Today’s events</strong><small>Show events from your calendar</small></span>
             <button class="switch" type="button" data-toggle-agenda aria-pressed="false" aria-label="Show today's events"><span></span></button>
+          </div>
+          <div class="toggle-row">
+            <span><strong>Weather</strong><small>Show local conditions and today’s high and low</small></span>
+            <button class="switch" type="button" data-toggle-weather aria-pressed="true" aria-label="Hide weather"><span></span></button>
           </div>
         </section>
 
