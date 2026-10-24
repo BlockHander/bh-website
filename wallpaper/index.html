@@ -199,8 +199,14 @@
               <button class="button button-subtle" type="button" data-refresh-calendars hidden>Refresh all</button>
             </div>
           </form>
-          <input hidden id="ical-file" type="file" accept=".ics,text/calendar" data-calendar-file>
-          <button class="button button-subtle calendar-file-button" type="button" data-add-calendar-file>Add .ics file</button>
+          <input hidden id="ical-file" type="file" accept=".ics,text/calendar" multiple data-calendar-file>
+          <div class="calendar-dropzone" data-calendar-dropzone role="group" aria-label="Add calendar files">
+            <svg class="calendar-dropzone-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="calendar-dropzone-copy">
+              <p>Drop .ics files here</p>
+              <div><span>or</span><button class="calendar-dropzone-button" type="button" data-add-calendar-file>Browse files</button></div>
+            </div>
+          </div>
           <p class="calendar-status" data-calendar-status role="status" aria-live="polite"></p>
           <p class="privacy-note">Local files stay in this browser. Feed links connect directly to their provider.</p>
         </section>

@@ -208,7 +208,14 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
 .calendar-form input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--rule-strong); border-radius: 9px; background: #fff; color: var(--ink); font-family: var(--mono); font-size: 12px; }
 .calendar-form input::placeholder { color: #818e84; }
 .calendar-actions { display: flex; align-items: center; gap: 12px; margin-top: 9px; }
-.calendar-file-button { margin-top: 9px; }
+.calendar-dropzone { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 13px 14px; border: 1px dashed var(--rule-strong); border-radius: 11px; background: color-mix(in srgb, var(--paper) 78%, transparent); transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease; }
+.calendar-dropzone[data-dragging="true"] { border-color: var(--accent); background: var(--accent-wash); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
+.calendar-dropzone-icon { width: 22px; height: 22px; flex: 0 0 auto; color: var(--accent); }
+.calendar-dropzone-copy { display: grid; gap: 4px; }
+.calendar-dropzone-copy p { margin: 0; color: var(--ink); font-size: 11px; font-weight: 600; }
+.calendar-dropzone-copy div { display: flex; align-items: center; gap: 6px; color: var(--ink-soft); font-size: 10px; }
+.calendar-dropzone-button { min-height: 24px; padding: 1px 2px; border: 0; border-radius: 4px; background: transparent; color: var(--accent); font-size: 10px; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.calendar-dropzone-button:hover { color: var(--ink); }
 .button { min-height: 39px; padding: 8px 15px; border: 1px solid transparent; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; transition: transform 130ms var(--spring), background-color 130ms ease, border-color 130ms ease; }
 .button:active { transform: scale(.98); }
 .button-primary { background: var(--accent); color: white; }
@@ -336,6 +343,9 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
   .toggle-row + .toggle-row { border-color: var(--rule); }
   .switch { background: #536158; }
   .calendar-form input::placeholder { color: #93a097; }
+  .calendar-dropzone { border-color: #536157; background: #202b24; }
+  .calendar-dropzone[data-dragging="true"] { border-color: #bad7b9; background: #304037; }
+  .calendar-dropzone-button { color: #bad7b9; }
   .button-primary { background: #a6c8a8; color: #18231c; }
   .button-primary:hover { background: #bad7b9; }
   .button-subtle:hover { border-color: #536157; }

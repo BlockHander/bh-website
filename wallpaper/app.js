@@ -36,6 +36,7 @@ const calendarNameInput = document.querySelector("#ical-name");
 const calendarInput = document.querySelector("#ical-url");
 const calendarFileInput = document.querySelector("[data-calendar-file]");
 const addCalendarFileButton = document.querySelector("[data-add-calendar-file]");
+const calendarDropzone = document.querySelector("[data-calendar-dropzone]");
 const refreshAllButton = document.querySelector("[data-refresh-calendars]");
 const calendarList = document.querySelector("[data-calendar-list]");
 const calendarStatus = document.querySelector("[data-calendar-status]");
@@ -901,29 +902,23 @@ calendarForm.addEventListener("submit", async (event) => {
 });
 
 addCalendarFileButton.addEventListener("click", () => calendarFileInput.click());
-calendarFileInput.addEventListener("change", async () => {
-  const file = calendarFileInput.files?.[0];
-  calendarFileInput.value = "";
-  if (!file) return;
+
+async function importCalendarFile(file) {
   if (!/\.ics$/i.test(file.name) && file.type !== "text/calendar") {
-    updateCalendarStatus("Choose an .ics calendar file.", "error");
-    return;
+    return { error: `${file.name} is not an .ics calendar file.` };
   }
   if (file.size > MAX_ICS_FILE_BYTES) {
-    updateCalendarStatus("This file is larger than 2 MB. Choose a smaller .ics file.", "error");
-    return;
+    return { error: `${file.name} is larger than 2 MB.` };
   }
 
   try {
     const icsContent = (await readCalendarFile(file)).replace(/^\uFEFF/, "");
     if (!isIcsCalendar(icsContent)) {
-      updateCalendarStatus("This file doesn’t contain a valid iCal calendar.", "error");
-      return;
+      return { error: `${file.name} doesn’t contain a valid iCal calendar.` };
     }
     const existing = state.calendars.find((calendar) => calendar.kind === "file" && calendar.icsContent === icsContent);
     if (existing) {
-      updateCalendarStatus(`${existing.name} is already saved on this device.`);
-      return;
+      return { duplicate: existing.name };
     }
 
     const name = file.name.replace(/\.ics$/i, "").trim().slice(0, 60) || `Calendar ${state.calendars.length + 1}`;
@@ -940,16 +935,79 @@ calendarFileInput.addEventListener("change", async () => {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, calendars }));
     } catch {
-      updateCalendarStatus("Couldn’t save this file. Browser storage may be full.", "error");
-      return;
+      return { error: `Couldn’t save ${file.name}. Browser storage may be full.` };
     }
     state.calendars = calendars;
     persist();
     render();
-    await refreshCalendar(calendar.id);
+    await refreshCalendar(calendar.id, { silent: true });
+    return { added: calendar.name };
   } catch {
-    updateCalendarStatus("Couldn’t read this file. Choose a valid .ics calendar.", "error");
+    return { error: `Couldn’t read ${file.name}. Choose a valid .ics calendar.` };
   }
+}
+
+async function importCalendarFiles(fileList) {
+  const files = Array.from(fileList || []);
+  if (!files.length) return;
+  updateCalendarStatus(`Adding ${files.length} ${files.length === 1 ? "calendar" : "calendars"}…`);
+  const results = [];
+  for (const file of files) results.push(await importCalendarFile(file));
+
+  if (results.length === 1) {
+    const [result] = results;
+    if (result.added) updateCalendarStatus(`${result.added} added.`, "success");
+    else if (result.duplicate) updateCalendarStatus(`${result.duplicate} is already saved on this device.`);
+    else updateCalendarStatus(result.error || "Couldn’t add this calendar file.", "error");
+    return;
+  }
+
+  const added = results.filter((result) => result.added).length;
+  const duplicates = results.filter((result) => result.duplicate).length;
+  const errors = results.filter((result) => result.error);
+  const summary = [];
+  if (added) summary.push(`${added} ${added === 1 ? "calendar" : "calendars"} added`);
+  if (duplicates) summary.push(`${duplicates} already saved`);
+  if (errors.length) summary.push(`${errors.length} couldn’t be added`);
+  const detail = errors.length ? `. ${errors[0].error}` : ".";
+  updateCalendarStatus(`${summary.join(" · ")}${detail}`, errors.length ? "error" : added ? "success" : "");
+}
+
+calendarFileInput.addEventListener("change", async () => {
+  const files = Array.from(calendarFileInput.files || []);
+  calendarFileInput.value = "";
+  await importCalendarFiles(files);
+});
+
+let calendarDragDepth = 0;
+function clearCalendarDropState() {
+  calendarDragDepth = 0;
+  delete calendarDropzone.dataset.dragging;
+}
+
+calendarDropzone.addEventListener("dragenter", (event) => {
+  if (!event.dataTransfer?.types?.includes("Files")) return;
+  event.preventDefault();
+  calendarDragDepth += 1;
+  calendarDropzone.dataset.dragging = "true";
+});
+calendarDropzone.addEventListener("dragover", (event) => {
+  if (!event.dataTransfer?.types?.includes("Files")) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "copy";
+  calendarDropzone.dataset.dragging = "true";
+});
+calendarDropzone.addEventListener("dragleave", (event) => {
+  if (!event.dataTransfer?.types?.includes("Files")) return;
+  event.preventDefault();
+  calendarDragDepth = Math.max(0, calendarDragDepth - 1);
+  if (!calendarDragDepth) delete calendarDropzone.dataset.dragging;
+});
+calendarDropzone.addEventListener("drop", (event) => {
+  if (!event.dataTransfer?.files?.length) return;
+  event.preventDefault();
+  clearCalendarDropState();
+  void importCalendarFiles(event.dataTransfer.files);
 });
 
 refreshAllButton.addEventListener("click", () => refreshCalendars());
