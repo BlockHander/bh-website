@@ -208,6 +208,7 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
 .calendar-form input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--rule-strong); border-radius: 9px; background: #fff; color: var(--ink); font-family: var(--mono); font-size: 12px; }
 .calendar-form input::placeholder { color: #818e84; }
 .calendar-actions { display: flex; align-items: center; gap: 12px; margin-top: 9px; }
+.calendar-file-button { margin-top: 9px; }
 .button { min-height: 39px; padding: 8px 15px; border: 1px solid transparent; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; transition: transform 130ms var(--spring), background-color 130ms ease, border-color 130ms ease; }
 .button:active { transform: scale(.98); }
 .button-primary { background: var(--accent); color: white; }

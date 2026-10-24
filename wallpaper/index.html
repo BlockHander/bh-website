@@ -199,8 +199,10 @@
               <button class="button button-subtle" type="button" data-refresh-calendars hidden>Refresh all</button>
             </div>
           </form>
+          <input hidden id="ical-file" type="file" accept=".ics,text/calendar" data-calendar-file>
+          <button class="button button-subtle calendar-file-button" type="button" data-add-calendar-file>Add .ics file</button>
           <p class="calendar-status" data-calendar-status role="status" aria-live="polite"></p>
-          <p class="privacy-note">The feed is checked by this local wallpaper. It isn’t sent to a third-party service.</p>
+          <p class="privacy-note">Local files stay in this browser. Feed links connect directly to their provider.</p>
         </section>
 
         <section class="control-section" aria-labelledby="treatment-heading">

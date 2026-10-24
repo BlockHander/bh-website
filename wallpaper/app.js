@@ -15,6 +15,7 @@ const palettes = [
 
 const STORAGE_KEY = "better-creating-wallpaper-settings";
 const SETTINGS_UPDATED_AT_KEY = `${STORAGE_KEY}:updatedAt`;
+const MAX_ICS_FILE_BYTES = 2 * 1024 * 1024;
 const query = new URLSearchParams(window.location.search);
 const pageBaseUrl = new URL("./", window.location.href);
 const localHostnames = new Set(["localhost", "127.0.0.1", "[::1]"]);
@@ -33,6 +34,8 @@ const customizeButton = document.querySelector("[data-open-editor]");
 const calendarForm = document.querySelector("[data-calendar-form]");
 const calendarNameInput = document.querySelector("#ical-name");
 const calendarInput = document.querySelector("#ical-url");
+const calendarFileInput = document.querySelector("[data-calendar-file]");
+const addCalendarFileButton = document.querySelector("[data-add-calendar-file]");
 const refreshAllButton = document.querySelector("[data-refresh-calendars]");
 const calendarList = document.querySelector("[data-calendar-list]");
 const calendarStatus = document.querySelector("[data-calendar-status]");
@@ -68,6 +71,21 @@ function validCalendarUrl(value) {
   } catch {
     return "";
   }
+}
+
+function isIcsCalendar(value) {
+  if (typeof value !== "string") return false;
+  const text = value.replace(/^\uFEFF/, "");
+  return /^BEGIN:VCALENDAR\s*$/im.test(text) && /^END:VCALENDAR\s*$/im.test(text);
+}
+
+function readCalendarFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(typeof reader.result === "string" ? reader.result : ""), { once: true });
+    reader.addEventListener("error", () => reject(reader.error || new Error("The file could not be read.")), { once: true });
+    reader.readAsText(file);
+  });
 }
 
 function browserCalendarUrl(value) {
@@ -133,11 +151,26 @@ function normalizeEvents(events) {
 }
 
 function normalizeCalendar(calendar, index) {
+  const id = typeof calendar?.id === "string" && calendar.id ? calendar.id : createCalendarId();
+  const name = typeof calendar?.name === "string" && calendar.name.trim() ? calendar.name.trim().slice(0, 60) : `Calendar ${index + 1}`;
+  if (calendar?.kind === "file") {
+    if (!isIcsCalendar(calendar.icsContent)) return null;
+    return {
+      id,
+      name,
+      kind: "file",
+      icsContent: calendar.icsContent,
+      events: normalizeEvents(calendar.events),
+      eventsDate: typeof calendar.eventsDate === "string" ? calendar.eventsDate : currentDateKey,
+      lastSync: typeof calendar.lastSync === "string" ? calendar.lastSync : "",
+    };
+  }
   const url = validCalendarUrl(calendar?.url);
   if (!url) return null;
   return {
-    id: typeof calendar.id === "string" && calendar.id ? calendar.id : createCalendarId(),
-    name: typeof calendar.name === "string" && calendar.name.trim() ? calendar.name.trim().slice(0, 60) : `Calendar ${index + 1}`,
+    id,
+    name,
+    kind: "url",
     url,
     events: normalizeEvents(calendar.events),
     eventsDate: typeof calendar.eventsDate === "string" ? calendar.eventsDate : currentDateKey,
@@ -443,7 +476,13 @@ function renderCalendarList() {
     name.textContent = calendar.name;
     const status = document.createElement("span");
     status.className = "calendar-source-status";
-    status.textContent = refreshingCalendars.has(calendar.id) ? "Checking" : calendar.error ? "Needs attention" : calendar.lastSync ? "Connected" : "Not checked";
+    status.textContent = refreshingCalendars.has(calendar.id)
+      ? "Checking"
+      : calendar.error
+        ? "Needs attention"
+        : calendar.kind === "file"
+          ? "Local file · saved on this device"
+          : calendar.lastSync ? "Connected" : "Not checked";
     if (calendar.error) status.dataset.state = "error";
     info.append(name, status);
 
@@ -717,19 +756,22 @@ async function fetchCalendar(calendar) {
   renderCalendarList();
   let timer;
   try {
-    const controller = new AbortController();
-    timer = window.setTimeout(() => controller.abort(), 15000);
-    const response = await fetch(browserCalendarUrl(calendar.url), {
-      method: "GET", cache: "no-store", signal: controller.signal,
-      headers: { Accept: "text/calendar,text/plain;q=0.9,*/*;q=0.5" },
-    });
-    const payload = await response.text();
-    if (!response.ok) {
-      let message = "";
-      try { message = JSON.parse(payload).error || ""; } catch { /* Use the HTTP status below. */ }
-      throw new Error(message || `The calendar feed returned HTTP ${response.status}.`);
+    let payload = calendar.kind === "file" ? calendar.icsContent : "";
+    if (calendar.kind !== "file") {
+      const controller = new AbortController();
+      timer = window.setTimeout(() => controller.abort(), 15000);
+      const response = await fetch(browserCalendarUrl(calendar.url), {
+        method: "GET", cache: "no-store", signal: controller.signal,
+        headers: { Accept: "text/calendar,text/plain;q=0.9,*/*;q=0.5" },
+      });
+      payload = await response.text();
+      if (!response.ok) {
+        let message = "";
+        try { message = JSON.parse(payload).error || ""; } catch { /* Use the HTTP status below. */ }
+        throw new Error(message || `The calendar feed returned HTTP ${response.status}.`);
+      }
     }
-    if (!/^BEGIN:VCALENDAR/im.test(payload)) throw new Error("The link did not return an iCal calendar.");
+    if (!isIcsCalendar(payload)) throw new Error("The link did not return a valid iCal calendar.");
     calendar.events = parseCalendarEvents(payload, new Date()).slice(0, 60);
     calendar.eventsDate = currentDateKey;
     calendar.lastSync = new Date().toISOString();
@@ -741,7 +783,7 @@ async function fetchCalendar(calendar) {
     const timeout = error.name === "AbortError";
     const message = timeout
       ? "The calendar took too long to respond."
-      : error instanceof TypeError
+      : calendar.kind !== "file" && error instanceof TypeError
         ? "The feed could not be read by this browser. Server-free sync requires the provider to allow cross-origin requests."
         : error.message || "Couldn’t refresh the calendar.";
     return { ok: false, timeout, message };
@@ -845,6 +887,7 @@ calendarForm.addEventListener("submit", async (event) => {
   const calendar = {
     id: createCalendarId(),
     name: name || `Calendar ${state.calendars.length + 1}`,
+    kind: "url",
     url: value,
     events: [],
     eventsDate: currentDateKey,
@@ -856,6 +899,59 @@ calendarForm.addEventListener("submit", async (event) => {
   render();
   await refreshCalendar(calendar.id);
 });
+
+addCalendarFileButton.addEventListener("click", () => calendarFileInput.click());
+calendarFileInput.addEventListener("change", async () => {
+  const file = calendarFileInput.files?.[0];
+  calendarFileInput.value = "";
+  if (!file) return;
+  if (!/\.ics$/i.test(file.name) && file.type !== "text/calendar") {
+    updateCalendarStatus("Choose an .ics calendar file.", "error");
+    return;
+  }
+  if (file.size > MAX_ICS_FILE_BYTES) {
+    updateCalendarStatus("This file is larger than 2 MB. Choose a smaller .ics file.", "error");
+    return;
+  }
+
+  try {
+    const icsContent = (await readCalendarFile(file)).replace(/^\uFEFF/, "");
+    if (!isIcsCalendar(icsContent)) {
+      updateCalendarStatus("This file doesn’t contain a valid iCal calendar.", "error");
+      return;
+    }
+    const existing = state.calendars.find((calendar) => calendar.kind === "file" && calendar.icsContent === icsContent);
+    if (existing) {
+      updateCalendarStatus(`${existing.name} is already saved on this device.`);
+      return;
+    }
+
+    const name = file.name.replace(/\.ics$/i, "").trim().slice(0, 60) || `Calendar ${state.calendars.length + 1}`;
+    const calendar = {
+      id: createCalendarId(),
+      name,
+      kind: "file",
+      icsContent,
+      events: [],
+      eventsDate: currentDateKey,
+      lastSync: "",
+    };
+    const calendars = [...state.calendars, calendar];
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, calendars }));
+    } catch {
+      updateCalendarStatus("Couldn’t save this file. Browser storage may be full.", "error");
+      return;
+    }
+    state.calendars = calendars;
+    persist();
+    render();
+    await refreshCalendar(calendar.id);
+  } catch {
+    updateCalendarStatus("Couldn’t read this file. Choose a valid .ics calendar.", "error");
+  }
+});
+
 refreshAllButton.addEventListener("click", () => refreshCalendars());
 calendarList.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-calendar-action]");
