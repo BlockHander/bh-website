@@ -16,6 +16,8 @@ const palettes = [
 const STORAGE_KEY = "better-creating-wallpaper-settings";
 const SETTINGS_UPDATED_AT_KEY = `${STORAGE_KEY}:updatedAt`;
 const MAX_ICS_FILE_BYTES = 2 * 1024 * 1024;
+const systemLocale = navigator.languages?.[0] || navigator.language || Intl.DateTimeFormat().resolvedOptions().locale;
+const systemLocaleData = typeof Intl.Locale === "function" ? new Intl.Locale(systemLocale).maximize() : null;
 const query = new URLSearchParams(window.location.search);
 const pageBaseUrl = new URL("./", window.location.href);
 const localHostnames = new Set(["localhost", "127.0.0.1", "[::1]"]);
@@ -332,37 +334,77 @@ function dateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+function formatSystemDate(date, options) {
+  return new Intl.DateTimeFormat(systemLocale, options).format(date);
+}
+
+function formatSystemNumber(value) {
+  return new Intl.NumberFormat(systemLocale, { useGrouping: false }).format(value);
+}
+
+function firstWeekdayIndex() {
+  try {
+    const weekInfo = systemLocaleData?.getWeekInfo?.() || systemLocaleData?.weekInfo;
+    if (Number.isInteger(weekInfo?.firstDay)) return weekInfo.firstDay % 7;
+  } catch { /* Older browsers use the locale-region fallback below. */ }
+
+  const region = systemLocaleData?.region || "";
+  if (["US", "CA", "JP", "KR", "TW", "PH", "BR", "MX", "CO", "DO", "GT", "HN", "NI", "PA", "PE", "PR", "SV", "TH", "VE"].includes(region)) return 0;
+  if (["AF", "BH", "DJ", "DZ", "EG", "IR", "IQ", "JO", "KW", "LY", "OM", "QA", "SD", "SY"].includes(region)) return 6;
+  return 1;
+}
+
+function systemTemperatureUnit() {
+  const preference = systemLocale.match(/-u(?:-[a-z0-9]{2,8})*-ms-(ussystem|uksystem|metric)(?:-|$)/i)?.[1]?.toLowerCase();
+  if (preference) return preference === "ussystem" ? "fahrenheit" : "celsius";
+  return ["US", "BS", "BZ", "KY", "PW", "LR"].includes(systemLocaleData?.region) ? "fahrenheit" : "celsius";
+}
+
 function monthSwatch(index) {
   const palette = activePalette(index);
   return `linear-gradient(140deg, ${palette.light} 0%, ${palette.base} 52%, ${palette.deep} 100%)`;
 }
 
 function renderMonthPicker() {
-  monthPicker.innerHTML = palettes.map((month, index) => `
-    <button class="month-choice" type="button" data-month-index="${index}" aria-pressed="${index === state.month}" aria-label="${month.name}${index === state.month ? ", selected" : ""}" title="${month.name}">
+  monthPicker.innerHTML = palettes.map((month, index) => {
+    const date = new Date(2023, index, 1);
+    const monthName = formatSystemDate(date, { month: "long" });
+    const monthShort = formatSystemDate(date, { month: "short" });
+    return `
+    <button class="month-choice" type="button" data-month-index="${index}" aria-pressed="${index === state.month}" aria-label="${monthName}${index === state.month ? ", selected" : ""}" title="${monthName}">
       <span class="month-swatch" aria-hidden="true" style="background:${monthSwatch(index)}"></span>
-      <span class="month-short">${month.short}</span>
-    </button>`).join("");
+      <span class="month-short">${monthShort}</span>
+    </button>`;
+  }).join("");
 }
 
 function renderCalendar() {
-  const month = palettes[currentMonth];
+  const calendarDate = new Date(year, currentMonth, 1);
+  const monthYear = formatSystemDate(calendarDate, { month: "long", year: "numeric" });
   const date = selectedDate();
   const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
-  const firstDay = (new Date(year, currentMonth, 1).getDay() + 6) % 7;
-  const weekdays = ["M", "T", "W", "T", "F", "S", "S"];
-  const fullWeekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const cells = weekdays.map((day, index) => `<span class="calendar-cell weekday" role="columnheader" aria-label="${fullWeekdays[index]}">${day}</span>`);
+  const weekStart = firstWeekdayIndex();
+  const firstDay = (calendarDate.getDay() - weekStart + 7) % 7;
+  const weekdays = Array.from({ length: 7 }, (_, index) => {
+    const weekdayDate = new Date(2023, 0, 1 + ((weekStart + index) % 7));
+    return {
+      short: formatSystemDate(weekdayDate, { weekday: "narrow" }),
+      full: formatSystemDate(weekdayDate, { weekday: "long" }),
+    };
+  });
+  const cells = weekdays.map(({ short, full }) => `<span class="calendar-cell weekday" role="columnheader" aria-label="${full}">${short}</span>`);
 
   for (let index = 0; index < firstDay; index += 1) cells.push('<span class="calendar-cell" aria-hidden="true"></span>');
   for (let day = 1; day <= daysInMonth; day += 1) {
     const isToday = day === date.getDate();
-    cells.push(`<span class="calendar-cell${isToday ? " is-today" : ""}" role="gridcell" aria-label="${month.name} ${day}${isToday ? ", today" : ""}">${day}</span>`);
+    const calendarDay = new Date(year, currentMonth, day);
+    const fullDate = formatSystemDate(calendarDay, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    cells.push(`<span class="calendar-cell${isToday ? " is-today" : ""}" role="gridcell" aria-label="${fullDate}${isToday ? ", today" : ""}">${formatSystemNumber(day)}</span>`);
   }
 
   calendarGrid.innerHTML = cells.join("");
-  calendarGrid.setAttribute("aria-label", `${month.name} ${year}`);
-  miniCalendar.setAttribute("aria-label", `${month.name} ${year} calendar`);
+  calendarGrid.setAttribute("aria-label", monthYear);
+  miniCalendar.setAttribute("aria-label", `${monthYear} calendar`);
 }
 
 function syncControls() {
@@ -396,10 +438,12 @@ function syncControls() {
 
 function render() {
   const month = palettes[state.month];
-  const calendarMonth = palettes[currentMonth];
+  const calendarMonthDate = new Date(year, currentMonth, 1);
+  const calendarMonthName = formatSystemDate(calendarMonthDate, { month: "long" });
+  const calendarMonthYear = formatSystemDate(calendarMonthDate, { month: "long", year: "numeric" });
   const palette = activePalette();
   const date = selectedDate();
-  const weekday = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(date);
+  const weekday = formatSystemDate(date, { weekday: "long" });
 
   wallpaper.style.setProperty("--wallpaper-base", palette.base);
   wallpaper.style.setProperty("--wallpaper-deep", palette.deep);
@@ -418,16 +462,16 @@ function render() {
   wallpaper.dataset.showWeather = String(state.showWeather);
   const hasWidgets = state.showAgenda || state.showWeather || (state.showCalendar && !["big-date", "minimal"].includes(state.layout));
   wallpaper.dataset.hasWidgets = String(hasWidgets);
-  wallpaper.setAttribute("aria-label", `${calendarMonth.name} ${year} calendar wallpaper with ${month.name} seasonal colors`);
+  wallpaper.setAttribute("aria-label", `${calendarMonthYear} calendar wallpaper with ${month.name} seasonal colors`);
 
-  document.querySelector("[data-wallpaper-month]").textContent = `${calendarMonth.name.toUpperCase()} ${year}`;
-  document.querySelector("[data-wallpaper-day]").textContent = String(date.getDate());
-  document.querySelector("[data-wallpaper-weekday]").textContent = weekday.toUpperCase();
-  document.querySelector("[data-calendar-title]").textContent = calendarMonth.name.toUpperCase();
-  document.querySelector("[data-calendar-year]").textContent = String(year);
+  document.querySelector("[data-wallpaper-month]").textContent = calendarMonthYear.toLocaleUpperCase(systemLocale);
+  document.querySelector("[data-wallpaper-day]").textContent = formatSystemNumber(date.getDate());
+  document.querySelector("[data-wallpaper-weekday]").textContent = weekday.toLocaleUpperCase(systemLocale);
+  document.querySelector("[data-calendar-title]").textContent = calendarMonthName.toLocaleUpperCase(systemLocale);
+  document.querySelector("[data-calendar-year]").textContent = formatSystemDate(calendarMonthDate, { year: "numeric" });
   document.querySelector("[data-palette-label]").textContent = `${month.name.toUpperCase()} · ${state.hemisphere === "north" ? "NORTHERN" : "SOUTHERN"} HEMISPHERE`;
   document.querySelector("[data-step-month]").textContent = month.name;
-  agendaDate.textContent = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date).toUpperCase();
+  agendaDate.textContent = formatSystemDate(date, { month: "short", day: "numeric" }).toLocaleUpperCase(systemLocale);
 
   miniCalendar.hidden = !state.showCalendar;
   agenda.hidden = !state.showAgenda;
@@ -442,7 +486,7 @@ function render() {
 
 function weatherLocationKey(location = state.weatherLocation) {
   if (!location) return "";
-  const unit = /^en-US(?:-|$)/i.test(navigator.language || "") ? "fahrenheit" : "celsius";
+  const unit = systemTemperatureUnit();
   return `${location.latitude.toFixed(4)},${location.longitude.toFixed(4)},${unit}`;
 }
 
@@ -491,9 +535,9 @@ function showWeatherReading(reading) {
   const description = weatherDescription(reading.code, reading.isDay);
   const unit = reading.unit === "fahrenheit" ? "°F" : "°C";
   weatherIcon.textContent = description.icon;
-  weatherTemperature.textContent = `${Math.round(reading.temperature)}${unit}`;
+  weatherTemperature.textContent = `${formatSystemNumber(Math.round(reading.temperature))}${unit}`;
   weatherSummary.textContent = description.label;
-  weatherRange.textContent = `H ${Math.round(reading.high)}${unit}  ·  L ${Math.round(reading.low)}${unit}`;
+  weatherRange.textContent = `H ${formatSystemNumber(Math.round(reading.high))}${unit}  ·  L ${formatSystemNumber(Math.round(reading.low))}${unit}`;
 }
 
 async function loadWeather(force = false) {
@@ -669,7 +713,7 @@ function renderAgendaItems() {
     const title = document.createElement("span");
     title.className = "agenda-event-title";
     if (event.allDay) time.textContent = "ALL DAY";
-    else if (event.start && !Number.isNaN(Date.parse(event.start))) time.textContent = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(event.start));
+    else if (event.start && !Number.isNaN(Date.parse(event.start))) time.textContent = formatSystemDate(new Date(event.start), { hour: "numeric", minute: "2-digit" });
     else time.textContent = "";
     title.textContent = event.summary;
     details.append(title);
