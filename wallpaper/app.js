@@ -18,8 +18,6 @@ const SETTINGS_UPDATED_AT_KEY = `${STORAGE_KEY}:updatedAt`;
 const MAX_ICS_FILE_BYTES = 2 * 1024 * 1024;
 const systemLocale = navigator.languages?.[0] || navigator.language || Intl.DateTimeFormat().resolvedOptions().locale;
 const systemLocaleData = typeof Intl.Locale === "function" ? new Intl.Locale(systemLocale).maximize() : null;
-const fallbackLocale = "en-US";
-const fallbackLocaleData = typeof Intl.Locale === "function" ? new Intl.Locale(fallbackLocale).maximize() : null;
 const query = new URLSearchParams(window.location.search);
 const pageBaseUrl = new URL("./", window.location.href);
 const localHostnames = new Set(["localhost", "127.0.0.1", "[::1]"]);
@@ -141,7 +139,6 @@ function legacySettings() {
     showCalendar: query.get("calendar") !== "off",
     showAgenda: query.get("agenda") === "on",
     showWeather: query.get("weather") !== "off",
-    useSystemFormats: true,
     ratio: query.get("ratio") === "16:9" ? "16:9" : "16:10",
     followLocalDate,
   };
@@ -156,7 +153,10 @@ function defaultSettings() {
     showCalendar: true,
     showAgenda: false,
     showWeather: true,
-    useSystemFormats: true,
+    dateFormat: "system",
+    timeFormat: "system",
+    weekStart: "system",
+    temperatureUnit: "system",
     weatherLocation: null,
     ratio: "16:10",
     followLocalDate: true,
@@ -210,6 +210,7 @@ function normalizeCalendar(calendar, index) {
 function normalizeSettings(value) {
   const defaults = defaultSettings();
   const source = value && typeof value === "object" ? value : {};
+  const useLegacySystemFormats = source.useSystemFormats !== false;
   const sourceCalendars = Array.isArray(source.calendars)
     ? source.calendars
     : source.icalUrl
@@ -229,7 +230,10 @@ function normalizeSettings(value) {
     showCalendar: source.showCalendar !== false,
     showAgenda: source.showAgenda === true,
     showWeather: source.showWeather !== false,
-    useSystemFormats: source.useSystemFormats !== false,
+    dateFormat: ["system", "dmy", "mdy", "iso"].includes(source.dateFormat) ? source.dateFormat : (useLegacySystemFormats ? defaults.dateFormat : "mdy"),
+    timeFormat: ["system", "12h", "24h"].includes(source.timeFormat) ? source.timeFormat : (useLegacySystemFormats ? defaults.timeFormat : "12h"),
+    weekStart: ["system", "sunday", "monday", "saturday"].includes(source.weekStart) ? source.weekStart : (useLegacySystemFormats ? defaults.weekStart : "sunday"),
+    temperatureUnit: ["system", "celsius", "fahrenheit"].includes(source.temperatureUnit) ? source.temperatureUnit : (useLegacySystemFormats ? defaults.temperatureUnit : "fahrenheit"),
     weatherLocation: normalizeWeatherLocation(source.weatherLocation),
     ratio: source.ratio === "16:9" ? "16:9" : "16:10",
     followLocalDate: source.followLocalDate !== false,
@@ -340,35 +344,61 @@ function dateKey(date) {
 }
 
 function formatSystemDate(date, options) {
-  return new Intl.DateTimeFormat(formattingLocale(), options).format(date);
+  const formatterOptions = { ...options };
+  if (formatterOptions.hour && state.timeFormat !== "system") formatterOptions.hourCycle = state.timeFormat === "24h" ? "h23" : "h12";
+  const formatter = new Intl.DateTimeFormat(systemLocale, formatterOptions);
+  if (state.dateFormat === "system" || !options.month || !options.day) {
+    if (state.dateFormat === "iso" && options.month && options.year) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+    return formatter.format(date);
+  }
+
+  if (state.dateFormat === "iso") {
+    const isoDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const weekday = options.weekday ? formatter.formatToParts(date).find((part) => part.type === "weekday")?.value : "";
+    return weekday ? `${isoDate} (${weekday})` : isoDate;
+  }
+
+  const parts = formatter.formatToParts(date);
+  const part = (type) => parts.find((item) => item.type === type)?.value || "";
+  const day = part("day");
+  const month = part("month");
+  const year = options.year ? part("year") : "";
+  const weekday = options.weekday ? part("weekday") : "";
+  const textualMonth = ["long", "short", "narrow"].includes(options.month);
+  let formattedDate;
+
+  if (textualMonth) {
+    formattedDate = state.dateFormat === "dmy"
+      ? [day, month, year].filter(Boolean).join(" ")
+      : `${month} ${day}${year ? `, ${year}` : ""}`;
+  } else {
+    const orderedParts = state.dateFormat === "dmy" ? [day, month, year] : [month, day, year];
+    formattedDate = orderedParts.filter(Boolean).join("/");
+  }
+
+  return weekday ? `${weekday}, ${formattedDate}` : formattedDate;
 }
 
 function formatSystemNumber(value) {
-  return new Intl.NumberFormat(formattingLocale(), { useGrouping: false }).format(value);
-}
-
-function formattingLocale() {
-  return state.useSystemFormats ? systemLocale : fallbackLocale;
-}
-
-function formattingLocaleData() {
-  return state.useSystemFormats ? systemLocaleData : fallbackLocaleData;
+  return new Intl.NumberFormat(systemLocale, { useGrouping: false }).format(value);
 }
 
 function formattingRegion() {
-  const region = formattingLocaleData()?.region;
+  const region = systemLocaleData?.region;
   if (region) return region;
-  return formattingLocale().split("-").slice(1).find((part) => /^[a-z]{2}$/i.test(part))?.toUpperCase() || "";
+  return systemLocale.split("-").slice(1).find((part) => /^[a-z]{2}$/i.test(part))?.toUpperCase() || "";
 }
 
 function formatLocaleUppercase(value) {
-  return value.toLocaleUpperCase(formattingLocale());
+  return value.toLocaleUpperCase(systemLocale);
 }
 
 function firstWeekdayIndex() {
+  if (state.weekStart !== "system") return { sunday: 0, monday: 1, saturday: 6 }[state.weekStart];
   try {
-    const localeData = formattingLocaleData();
-    const weekInfo = localeData?.getWeekInfo?.() || localeData?.weekInfo;
+    const weekInfo = systemLocaleData?.getWeekInfo?.() || systemLocaleData?.weekInfo;
     if (Number.isInteger(weekInfo?.firstDay)) return weekInfo.firstDay % 7;
   } catch { /* Older browsers use the locale-region fallback below. */ }
 
@@ -378,8 +408,8 @@ function firstWeekdayIndex() {
   return 1;
 }
 
-function systemTemperatureUnit() {
-  if (!state.useSystemFormats) return "fahrenheit";
+function weatherTemperatureUnit() {
+  if (state.temperatureUnit !== "system") return state.temperatureUnit;
   const preference = systemLocale.match(/-u(?:-[a-z0-9]{2,8})*-ms-(ussystem|uksystem|metric)(?:-|$)/i)?.[1]?.toLowerCase();
   if (preference) return preference === "ussystem" ? "fahrenheit" : "celsius";
   return ["US", "BS", "BZ", "KY", "PW", "LR"].includes(formattingRegion()) ? "fahrenheit" : "celsius";
@@ -447,9 +477,10 @@ function syncControls() {
   const weatherToggle = document.querySelector("[data-toggle-weather]");
   weatherToggle.setAttribute("aria-pressed", String(state.showWeather));
   weatherToggle.setAttribute("aria-label", `${state.showWeather ? "Hide" : "Show"} weather`);
-  const formatsToggle = document.querySelector("[data-toggle-system-formats]");
-  formatsToggle.setAttribute("aria-pressed", String(state.useSystemFormats));
-  formatsToggle.setAttribute("aria-label", "Use system formats");
+  document.querySelector("[data-date-format]").value = state.dateFormat;
+  document.querySelector("[data-time-format]").value = state.timeFormat;
+  document.querySelector("[data-week-start]").value = state.weekStart;
+  document.querySelector("[data-temperature-unit]").value = state.temperatureUnit;
 
   const followMonthToggle = document.querySelector("[data-toggle-follow-month]");
   followMonthToggle.setAttribute("aria-pressed", String(state.followLocalDate));
@@ -499,7 +530,7 @@ function render() {
   document.querySelector("[data-calendar-year]").textContent = formatSystemDate(calendarMonthDate, { year: "numeric" });
   document.querySelector("[data-palette-label]").textContent = `${month.name.toUpperCase()} · ${state.hemisphere === "north" ? "NORTHERN" : "SOUTHERN"} HEMISPHERE`;
   document.querySelector("[data-step-month]").textContent = month.name;
-  agendaDate.textContent = formatLocaleUppercase(formatSystemDate(date, { month: "short", day: "numeric" }));
+  agendaDate.textContent = formatLocaleUppercase(formatSystemDate(date, { year: "numeric", month: "2-digit", day: "2-digit" }));
 
   miniCalendar.hidden = !state.showCalendar;
   agenda.hidden = !state.showAgenda;
@@ -514,7 +545,7 @@ function render() {
 
 function weatherLocationKey(location = state.weatherLocation) {
   if (!location) return "";
-  const unit = systemTemperatureUnit();
+  const unit = weatherTemperatureUnit();
   return `${location.latitude.toFixed(4)},${location.longitude.toFixed(4)},${unit}`;
 }
 
@@ -1169,7 +1200,10 @@ document.querySelectorAll("[data-aspect-choice]").forEach((button) => button.add
 document.querySelector("[data-toggle-calendar]").addEventListener("click", () => { state.showCalendar = !state.showCalendar; render(); });
 document.querySelector("[data-toggle-agenda]").addEventListener("click", () => { state.showAgenda = !state.showAgenda; render(); });
 document.querySelector("[data-toggle-weather]").addEventListener("click", () => { state.showWeather = !state.showWeather; render(); });
-document.querySelector("[data-toggle-system-formats]").addEventListener("click", () => { state.useSystemFormats = !state.useSystemFormats; render(); });
+document.querySelector("[data-date-format]").addEventListener("change", (event) => { state.dateFormat = event.target.value; render(); });
+document.querySelector("[data-time-format]").addEventListener("change", (event) => { state.timeFormat = event.target.value; render(); });
+document.querySelector("[data-week-start]").addEventListener("change", (event) => { state.weekStart = event.target.value; render(); });
+document.querySelector("[data-temperature-unit]").addEventListener("change", (event) => { state.temperatureUnit = event.target.value; render(); });
 weatherSearchForm.addEventListener("submit", searchWeatherLocations);
 weatherLocationResults.addEventListener("click", (event) => {
   const button = event.target.closest("[data-weather-result-index]");
@@ -1193,7 +1227,10 @@ document.querySelector("[data-reset-settings]").addEventListener("click", () => 
   state.showCalendar = true;
   state.showAgenda = false;
   state.showWeather = true;
-  state.useSystemFormats = true;
+  state.dateFormat = "system";
+  state.timeFormat = "system";
+  state.weekStart = "system";
+  state.temperatureUnit = "system";
   state.ratio = "16:10";
   state.followLocalDate = true;
   render();

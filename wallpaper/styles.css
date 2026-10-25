@@ -25,7 +25,7 @@ html { min-width: 320px; min-height: 100%; }
 body { min-width: 320px; min-height: 100vh; margin: 0; }
 button, input { font: inherit; }
 button { color: inherit; }
-button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #294c38; outline-offset: 3px; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid #294c38; outline-offset: 3px; }
 [hidden] { display: none !important; }
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
@@ -211,6 +211,12 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
 .toggle-row > span { display: grid; gap: 2px; }
 .toggle-row strong { font-size: 12px; font-weight: 500; }
 .toggle-row small { color: var(--ink-muted); font-size: 11px; }
+.format-option { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(124px, 42%); align-items: center; gap: 12px; padding: 10px 0; }
+.format-option + .format-option { border-top: 1px solid #edf0ed; }
+.format-option > span { min-width: 0; display: grid; gap: 3px; }
+.format-option label { font-size: 12px; font-weight: 500; }
+.format-option small { color: var(--ink-muted); font-size: 11px; line-height: 1.35; }
+.format-select { width: 100%; min-width: 0; min-height: 38px; padding: 0 9px; border: 1px solid var(--rule-strong); border-radius: 8px; background: #fff; color: var(--ink); font-family: var(--mono); font-size: 11px; }
 .switch { width: 37px; height: 21px; display: inline-flex; align-items: center; flex: 0 0 auto; padding: 2px; border: 0; border-radius: 99px; background: #c4ccc5; cursor: pointer; transition: background-color 160ms ease; }
 .switch > span { width: 17px; height: 17px; display: block; border-radius: 50%; background: white; box-shadow: 0 1px 2px rgb(0 0 0 / 18%); transition: transform 180ms var(--spring); }
 .switch[aria-pressed="true"] { background: var(--accent); }
@@ -369,7 +375,7 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
   .customize-button:hover { background: rgb(33 45 40 / 94%); box-shadow: 0 8px 26px rgb(0 0 0 / 24%); }
   .settings-dialog { border-color: rgb(220 232 222 / 12%); box-shadow: 0 24px 74px rgb(0 0 0 / 44%), 0 4px 12px rgb(0 0 0 / 28%); }
   .settings-dialog::backdrop { background: rgb(0 0 0 / 40%); }
-.dialog-close, .month-stepper, .follow-month-row, .layout-choice, .calendar-form input, .weather-location-input, .weather-selected-location, .button-subtle { border-color: var(--rule); background: #26312b; color: var(--ink); }
+.dialog-close, .month-stepper, .follow-month-row, .layout-choice, .calendar-form input, .weather-location-input, .format-select, .weather-selected-location, .button-subtle { border-color: var(--rule); background: #26312b; color: var(--ink); }
   .dialog-close:hover, .step-button:hover, .month-choice:hover, .button-subtle:hover { background: #303c34; }
   .step-button { color: var(--ink-muted); }
   .month-choice[aria-pressed="true"] { border-color: #617768; background: #304037; color: var(--ink); }
@@ -381,6 +387,7 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
   .layout-icon { border-color: #46564b; background: #202b24; }
   .layout-icon-date i { border-color: #a3b2a6; background: #26312b; }
   .toggle-row + .toggle-row { border-color: var(--rule); }
+  .format-option + .format-option { border-color: var(--rule); }
   .switch { background: #536158; }
   .calendar-form input::placeholder, .weather-location-input::placeholder { color: #93a097; }
   .calendar-dropzone { border-color: #536157; background: #202b24; }
@@ -395,9 +402,9 @@ html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: h
   .calendar-source-action { color: #bad7b9; }
   .calendar-source-action:hover { color: #e0ebcf; }
   .calendar-source-action:disabled { color: #93a097; }
-  button:focus-visible, input:focus-visible, a:focus-visible { outline-color: #d9e5a8; }
+  button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline-color: #d9e5a8; }
 }
 @media (forced-colors: active) {
   .customize-button, .settings-dialog, .settings-card, .month-choice[aria-pressed="true"], .layout-choice[aria-pressed="true"] { border: 1px solid CanvasText; }
-  button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid Highlight; }
+  button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid Highlight; }
 }
