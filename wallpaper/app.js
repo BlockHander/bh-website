@@ -13,12 +13,28 @@ const palettes = [
   { name: "December", short: "Dec", base: "#c5d3df", deep: "#9eafc2", light: "#d7dbd1", season: "Winter finds its rhythm", scene: "december", night: { base: "#273543", deep: "#1a2634", light: "#39495a" } },
 ];
 
+const monthMarks = [
+  '<path d="M16 4v24M5.6 10l20.8 12M5.6 22 26.4 10M12 6l4 4 4-4M12 26l4-4 4 4M7 14l4-4-1-5m15 11-4 4 1 5M7 18l4 4-1 5m15-11-4-4 1-5"/>',
+  '<ellipse cx="16" cy="8" rx="3.3" ry="4"/><ellipse cx="16" cy="8" rx="3.3" ry="4" transform="rotate(60 16 16)"/><ellipse cx="16" cy="8" rx="3.3" ry="4" transform="rotate(120 16 16)"/><circle cx="16" cy="16" r="2"/>',
+  '<path d="M16 27V12m0 9c-1-5-5-8-10-8 1 5 4 8 10 8Zm0-5c1-5 5-8 10-8-1 5-4 8-10 8Z"/>',
+  '<path d="M7 19h17a4 4 0 0 0 0-8 7 7 0 0 0-13-1 4.5 4.5 0 0 0-4 9Zm4 4-1 3m7-3-1 3m7-3-1 3"/>',
+  '<path d="M8 26c5-5 8-11 8-19m-4 9c-4 0-6-2-7-5 4 0 6 2 7 5Zm5-5c4 0 6-2 7-5-4 0-6 2-7 5Z"/><circle cx="9" cy="8" r="2"/><circle cx="22" cy="8" r="2"/>',
+  '<circle cx="16" cy="16" r="4"/><path d="M16 3v5m0 16v5M3 16h5m16 0h5M7 7l4 4m10 10 4 4M25 7l-4 4m-10 10-4 4"/>',
+  '<path d="M16 28V9m0 12c-7 0-10-4-10-10 6 0 10 3 10 10Zm0-7c0-6 4-10 10-10 0 6-4 10-10 10Z"/>',
+  '<circle cx="22" cy="9" r="4"/><path d="M16 9h.1M22 3v-2M28 9h2M10 21c3-2 6 2 9 0s6 2 9 0M7 27c3-2 6 2 9 0s6 2 9 0"/>',
+  '<path d="M16 27V8m0 8-6-5m6 10-7-2m7-6 6-5m-6 16 7-4"/><path d="M16 6c-1-3 1-4 3-5m-3 5c-3-2-4-4-3-6m3 6c2-3 4-4 7-3"/>',
+  '<path d="M16 27c-1-6-4-10-8-13l5-2 1-6 4 5 6-1-3 5 3 4c-4 0-6 3-8 8Z"/><path d="m11 14 10 4m-5-7-1 12"/>',
+  '<path d="M7 26c5-5 7-10 8-16m-7 8c-3-2-4-4-4-7 4 1 6 3 6 7Zm6-7c0-4 2-6 5-8 1 4-1 7-5 8Zm2 3c3-3 6-3 9-2-2 4-5 5-9 2Z"/><circle cx="7" cy="7" r="1.5"/><circle cx="23" cy="8" r="1.5"/>',
+  '<path d="m16 4 3 5h-2l4 5h-2l5 6H8l5-6h-2l4-5h-2l3-5Zm-2 16h4v7h-4z"/><circle cx="7" cy="8" r="1"/><circle cx="25" cy="12" r="1"/>',
+];
+
 const STORAGE_KEY = "better-creating-wallpaper-settings";
 const SETTINGS_UPDATED_AT_KEY = `${STORAGE_KEY}:updatedAt`;
 const MAX_ICS_FILE_BYTES = 2 * 1024 * 1024;
 const systemLocale = navigator.languages?.[0] || navigator.language || Intl.DateTimeFormat().resolvedOptions().locale;
 const systemLocaleData = typeof Intl.Locale === "function" ? new Intl.Locale(systemLocale).maximize() : null;
 const query = new URLSearchParams(window.location.search);
+let previewDesign = ["seasonal", "field-guide", "evening"].includes(query.get("look")) ? query.get("look") : "";
 const pageBaseUrl = new URL("./", window.location.href);
 const localHostnames = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const localApiBaseUrl = localHostnames.has(window.location.hostname) ? new URL("api/", pageBaseUrl) : null;
@@ -147,6 +163,7 @@ function legacySettings() {
 function defaultSettings() {
   return {
     month: currentMonth,
+    design: "seasonal",
     style: "gradient",
     hemisphere: "north",
     layout: "combined",
@@ -224,6 +241,7 @@ function normalizeSettings(value) {
       : [];
   return {
     month: intParam(source.month, defaults.month, 0, 11),
+    design: ["seasonal", "field-guide", "evening"].includes(source.design) ? source.design : defaults.design,
     style: source.style === "solid" ? "solid" : "gradient",
     hemisphere: source.hemisphere === "south" ? "south" : "north",
     layout: ["combined", "big-date", "calendar", "minimal"].includes(source.layout) ? source.layout : "combined",
@@ -252,6 +270,18 @@ function normalizeWeatherLocation(location) {
 
 const saved = storedSettings();
 const state = normalizeSettings(saved || { ...defaultSettings(), ...legacySettings() });
+
+function activeDesign() {
+  return previewDesign || state.design;
+}
+
+function clearDesignPreview() {
+  previewDesign = "";
+  query.delete("look");
+  const search = query.toString();
+  window.history.replaceState(null, "", `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`);
+}
+
 let initializingSettings = true;
 let settingsFileReady = false;
 let settingsRevision = 0;
@@ -427,7 +457,7 @@ function renderMonthPicker() {
     const monthShort = formatSystemDate(date, { month: "short" });
     return `
     <button class="month-choice" type="button" data-month-index="${index}" aria-pressed="${index === state.month}" aria-label="${monthName}${index === state.month ? ", selected" : ""}" title="${monthName}">
-      <span class="month-swatch" aria-hidden="true" style="background:${monthSwatch(index)}"></span>
+      <span class="month-swatch" aria-hidden="true" style="background:${monthSwatch(index)};--month-mark-color:${activePalette(index).deep}"><svg class="month-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${monthMarks[index]}</svg></span>
       <span class="month-short">${monthShort}</span>
     </button>`;
   }).join("");
@@ -464,6 +494,7 @@ function renderCalendar() {
 
 function syncControls() {
   document.querySelectorAll("[data-style-choice]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.styleChoice === state.style)));
+  document.querySelectorAll("[data-design-choice]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.designChoice === activeDesign())));
   document.querySelectorAll("[data-hemisphere-choice]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.hemisphereChoice === state.hemisphere)));
   document.querySelectorAll("[data-layout-choice]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.layoutChoice === state.layout)));
   document.querySelectorAll("[data-aspect-choice]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.aspectChoice === state.ratio)));
@@ -507,6 +538,9 @@ function render() {
   wallpaper.style.setProperty("--wallpaper-base", palette.base);
   wallpaper.style.setProperty("--wallpaper-deep", palette.deep);
   wallpaper.style.setProperty("--wallpaper-light", palette.light);
+  wallpaper.style.setProperty("--palette-base", palette.base);
+  wallpaper.style.setProperty("--palette-deep", palette.deep);
+  wallpaper.style.setProperty("--palette-light", palette.light);
   wallpaper.style.setProperty("--wallpaper-ink", prefersDarkScheme ? "#f1f0e5" : "#202b24");
   wallpaper.style.setProperty("--wallpaper-today-bg", prefersDarkScheme ? "#ecd092" : "#202b24");
   wallpaper.style.setProperty("--wallpaper-today-ink", prefersDarkScheme ? "#29352e" : palette.light);
@@ -514,6 +548,8 @@ function render() {
   wallpaper.dataset.scene = palette.scene;
   document.querySelector('meta[name="theme-color"]').setAttribute("content", palette.base);
   wallpaper.dataset.style = state.style;
+  wallpaper.dataset.design = activeDesign();
+  document.documentElement.dataset.look = activeDesign();
   wallpaper.dataset.layout = state.layout;
   wallpaper.dataset.ratio = state.ratio;
   wallpaper.dataset.showCalendar = String(state.showCalendar);
@@ -523,13 +559,14 @@ function render() {
   wallpaper.dataset.hasWidgets = String(hasWidgets);
   wallpaper.setAttribute("aria-label", `${calendarMonthYear} calendar wallpaper with ${month.name} seasonal colors`);
 
-  document.querySelector("[data-wallpaper-month]").textContent = formatLocaleUppercase(calendarMonthYear);
+  document.querySelector("[data-wallpaper-month]").textContent = calendarMonthYear;
   document.querySelector("[data-wallpaper-day]").textContent = formatSystemNumber(date.getDate());
-  document.querySelector("[data-wallpaper-weekday]").textContent = formatLocaleUppercase(weekday);
+  document.querySelector("[data-wallpaper-weekday]").textContent = weekday;
   document.querySelector("[data-calendar-title]").textContent = formatLocaleUppercase(calendarMonthName);
   document.querySelector("[data-calendar-year]").textContent = formatSystemDate(calendarMonthDate, { year: "numeric" });
   document.querySelector("[data-palette-label]").textContent = `${month.name.toUpperCase()} · ${state.hemisphere === "north" ? "NORTHERN" : "SOUTHERN"} HEMISPHERE`;
   document.querySelector("[data-step-month]").textContent = month.name;
+  document.querySelector("[data-step-season]").textContent = month.season;
   agendaDate.textContent = formatLocaleUppercase(formatSystemDate(date, { year: "numeric", month: "2-digit", day: "2-digit" }));
 
   miniCalendar.hidden = !state.showCalendar;
@@ -1194,6 +1231,11 @@ document.querySelector("[data-next-month]").addEventListener("click", () => {
   render();
 });
 document.querySelectorAll("[data-style-choice]").forEach((button) => button.addEventListener("click", () => { state.style = button.dataset.styleChoice; render(); }));
+document.querySelectorAll("[data-design-choice]").forEach((button) => button.addEventListener("click", () => {
+  state.design = button.dataset.designChoice;
+  clearDesignPreview();
+  render();
+}));
 document.querySelectorAll("[data-hemisphere-choice]").forEach((button) => button.addEventListener("click", () => { state.hemisphere = button.dataset.hemisphereChoice; render(); }));
 document.querySelectorAll("[data-layout-choice]").forEach((button) => button.addEventListener("click", () => { state.layout = button.dataset.layoutChoice; render(); }));
 document.querySelectorAll("[data-aspect-choice]").forEach((button) => button.addEventListener("click", () => { state.ratio = button.dataset.aspectChoice; render(); }));
@@ -1221,6 +1263,7 @@ document.querySelector("[data-weather-open-settings]").addEventListener("click",
 
 document.querySelector("[data-reset-settings]").addEventListener("click", () => {
   state.month = currentMonth;
+  state.design = "seasonal";
   state.style = "gradient";
   state.hemisphere = "north";
   state.layout = "combined";
@@ -1233,6 +1276,7 @@ document.querySelector("[data-reset-settings]").addEventListener("click", () => 
   state.temperatureUnit = "system";
   state.ratio = "16:10";
   state.followLocalDate = true;
+  clearDesignPreview();
   render();
   showToast("Appearance settings reset. Your calendar link is still connected.");
 });

@@ -1,0 +1,251 @@
+/* Optional visual directions for the style-explorations.html preview. */
+
+html[data-look="field-guide"] {
+  color-scheme: light;
+  --ink: #293b32;
+  --ink-muted: #5c6b60;
+  --ink-soft: #7c877d;
+  --paper: #f1efe3;
+  --rule: #d7d7c9;
+  --rule-strong: #b8c0b3;
+  --accent: #4f6c54;
+  --accent-wash: #e3e7da;
+  background: #d6d7c7;
+}
+
+html[data-look="field-guide"] .wallpaper-art {
+  --wallpaper-base: color-mix(in srgb, var(--palette-base) 48%, #e8e8d8) !important;
+  --wallpaper-deep: color-mix(in srgb, var(--palette-deep) 45%, #899c88) !important;
+  --wallpaper-light: color-mix(in srgb, var(--palette-light) 32%, #f0edda) !important;
+  --wallpaper-ink: #293b32 !important;
+  --wallpaper-today-bg: #49664e !important;
+  --wallpaper-today-ink: #f3eedb !important;
+  background:
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--wallpaper-light) 66%, #f0eedf),
+      color-mix(in srgb, var(--wallpaper-base) 82%, #eeecdc) 55%,
+      color-mix(in srgb, var(--wallpaper-deep) 46%, var(--wallpaper-base))) !important;
+}
+
+html[data-look="field-guide"] .wallpaper-art[data-style="solid"] {
+  background: color-mix(in srgb, var(--wallpaper-base) 72%, #efeddc) !important;
+}
+
+html[data-look="field-guide"] .seasonal-ridge-light { opacity: .29; }
+html[data-look="field-guide"] .seasonal-ridge-deep { opacity: .16; }
+html[data-look="field-guide"] .seasonal-emblem { opacity: .62; }
+html[data-look="field-guide"] .wallpaper-date-block strong {
+  font-family: var(--display);
+  font-weight: 500;
+  letter-spacing: -.075em;
+}
+html[data-look="field-guide"] .mini-calendar-top {
+  border-bottom-color: color-mix(in srgb, var(--wallpaper-ink) 32%, transparent);
+}
+html[data-look="field-guide"] .calendar-cell { border-radius: 5px; }
+html[data-look="field-guide"] .calendar-cell.is-today { border-radius: 3px; }
+html[data-look="field-guide"] .wallpaper-footer { opacity: .84; }
+html[data-look="field-guide"] .customize-button {
+  border-color: #bdc3b4;
+  border-radius: 9px;
+  background: #f1efe3;
+  color: #293b32;
+  box-shadow: 0 3px 0 rgb(66 80 65 / 12%);
+  backdrop-filter: blur(10px);
+}
+html[data-look="field-guide"] .customize-button:hover {
+  background: #faf8ed;
+  box-shadow: 0 4px 0 rgb(66 80 65 / 15%);
+}
+html[data-look="field-guide"] .settings-dialog {
+  border-color: #d2d2c4;
+  border-radius: 15px;
+  background: var(--paper);
+  box-shadow: 0 18px 48px rgb(39 54 43 / 16%);
+}
+html[data-look="field-guide"] .design-choice {
+  border-color: var(--rule);
+  border-radius: 7px;
+  background: #f8f6eb;
+}
+html[data-look="field-guide"] .design-choice[aria-pressed="true"] {
+  border-color: #9eae9e;
+  background: #e1e7dc;
+}
+html[data-look="field-guide"] .design-choice-preview { border-radius: 3px; }
+html[data-look="field-guide"] .dialog-close,
+html[data-look="field-guide"] .month-stepper,
+html[data-look="field-guide"] .follow-month-row,
+html[data-look="field-guide"] .layout-choice,
+html[data-look="field-guide"] .calendar-form input,
+html[data-look="field-guide"] .weather-location-input,
+html[data-look="field-guide"] .weather-selected-location,
+html[data-look="field-guide"] .button-subtle {
+  border-color: var(--rule);
+  border-radius: 7px;
+  background: #f8f6eb;
+  color: var(--ink);
+}
+html[data-look="field-guide"] .dialog-close { border-radius: 7px; }
+html[data-look="field-guide"] .month-choice { border-radius: 5px; }
+html[data-look="field-guide"] .month-choice:hover,
+html[data-look="field-guide"] .step-button:hover,
+html[data-look="field-guide"] .button-subtle:hover { background: #e8e8d9; }
+html[data-look="field-guide"] .month-choice[aria-pressed="true"],
+html[data-look="field-guide"] .layout-choice[aria-pressed="true"] {
+  border-color: #9eae9e;
+  background: #e1e7dc;
+}
+html[data-look="field-guide"] .segmented-control {
+  border-color: var(--rule);
+  border-radius: 7px;
+  background: #e5e5d9;
+}
+html[data-look="field-guide"] .segmented-control button { border-radius: 5px; }
+html[data-look="field-guide"] .segmented-control button[aria-pressed="true"] {
+  border-color: #f8f6eb;
+  background: #f8f6eb;
+  box-shadow: 0 1px 2px rgb(39 54 43 / 10%);
+}
+html[data-look="field-guide"] .layout-icon {
+  border-color: #d0d4c7;
+  border-radius: 4px;
+  background: #f0efe3;
+}
+html[data-look="field-guide"] .button { border-radius: 6px; }
+html[data-look="field-guide"] .button-primary { background: #4f6c54; }
+html[data-look="field-guide"] .button-primary:hover { background: #3f5b45; }
+
+html[data-look="evening"] {
+  color-scheme: dark;
+  --ink: #ece9dc;
+  --ink-muted: #bbc1b3;
+  --ink-soft: #939f91;
+  --paper: #1b2b26;
+  --rule: #384940;
+  --rule-strong: #607065;
+  --accent: #d2bb76;
+  --accent-wash: #313d31;
+  background: #14211e;
+}
+
+html[data-look="evening"] .wallpaper-art {
+  --wallpaper-base: color-mix(in srgb, var(--palette-base) 18%, #1d2c27) !important;
+  --wallpaper-deep: color-mix(in srgb, var(--palette-deep) 18%, #14211f) !important;
+  --wallpaper-light: color-mix(in srgb, var(--palette-light) 14%, #354035) !important;
+  --wallpaper-ink: #ece9dc !important;
+  --wallpaper-today-bg: #d2bb76 !important;
+  --wallpaper-today-ink: #26352d !important;
+  background:
+    radial-gradient(ellipse 53% 49% at 86% 5%, color-mix(in srgb, var(--palette-base) 24%, #28382f), transparent 86%),
+    linear-gradient(137deg, #1b2c27 0%, color-mix(in srgb, var(--palette-deep) 20%, #20322b) 56%, #14211e 100%) !important;
+}
+
+html[data-look="evening"] .wallpaper-art[data-style="solid"] {
+  background: color-mix(in srgb, var(--palette-base) 18%, #1d2c27) !important;
+}
+
+html[data-look="evening"] .seasonal-ridge-light { opacity: .18; }
+html[data-look="evening"] .seasonal-ridge-deep { opacity: .24; }
+html[data-look="evening"] .seasonal-line,
+html[data-look="evening"] .seasonal-ray,
+html[data-look="evening"] .seasonal-rain,
+html[data-look="evening"] .seasonal-seed,
+html[data-look="evening"] .seasonal-vein,
+html[data-look="evening"] .seasonal-snow {
+  stroke: color-mix(in srgb, var(--palette-light) 46%, #d0c38d) !important;
+  opacity: .52;
+}
+html[data-look="evening"] .seasonal-leaf,
+html[data-look="evening"] .seasonal-tree,
+html[data-look="evening"] .seasonal-trunk {
+  fill: color-mix(in srgb, var(--palette-light) 40%, #b7b894) !important;
+  opacity: .28;
+}
+html[data-look="evening"] .seasonal-sun,
+html[data-look="evening"] .seasonal-blossom,
+html[data-look="evening"] .seasonal-dot,
+html[data-look="evening"] .seasonal-bud {
+  fill: color-mix(in srgb, var(--palette-light) 48%, #c5bd91) !important;
+  stroke: color-mix(in srgb, var(--palette-light) 55%, #d0c38d) !important;
+}
+html[data-look="evening"] .customize-button {
+  border-color: #516054;
+  border-radius: 12px;
+  background: rgb(27 43 37 / 88%);
+  color: #eee9d7;
+  box-shadow: 0 8px 25px rgb(5 14 12 / 22%);
+}
+html[data-look="evening"] .customize-button:hover { background: #2a3d34; }
+html[data-look="evening"] .settings-dialog {
+  border-color: #415348;
+  border-radius: 17px;
+  background: var(--paper);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 44%);
+}
+html[data-look="evening"] .settings-dialog::backdrop { background: rgb(6 14 12 / 48%); }
+html[data-look="evening"] .design-choice {
+  border-color: var(--rule);
+  background: #24362f;
+}
+html[data-look="evening"] .design-choice[aria-pressed="true"] {
+  border-color: #687868;
+  background: #34463a;
+  color: var(--ink);
+}
+html[data-look="evening"] .dialog-close,
+html[data-look="evening"] .month-stepper,
+html[data-look="evening"] .follow-month-row,
+html[data-look="evening"] .layout-choice,
+html[data-look="evening"] .calendar-form input,
+html[data-look="evening"] .weather-location-input,
+html[data-look="evening"] .weather-selected-location,
+html[data-look="evening"] .button-subtle {
+  border-color: var(--rule);
+  background: #24362f;
+  color: var(--ink);
+}
+html[data-look="evening"] .dialog-close:hover,
+html[data-look="evening"] .step-button:hover,
+html[data-look="evening"] .month-choice:hover,
+html[data-look="evening"] .button-subtle:hover { background: #304239; }
+html[data-look="evening"] .month-choice[aria-pressed="true"],
+html[data-look="evening"] .layout-choice[aria-pressed="true"] {
+  border-color: #687868;
+  background: #34463a;
+  color: var(--ink);
+}
+html[data-look="evening"] .segmented-control {
+  border-color: var(--rule);
+  background: #15231f;
+}
+html[data-look="evening"] .segmented-control button[aria-pressed="true"] {
+  border-color: #566557;
+  background: #394a3e;
+  color: #f0ebd9;
+  box-shadow: none;
+}
+html[data-look="evening"] .layout-icon {
+  border-color: #526359;
+  background: #1b2b26;
+}
+html[data-look="evening"] .layout-icon i { background: #a8b29b; }
+html[data-look="evening"] .button-primary {
+  background: #d2bb76;
+  color: #26352d;
+}
+html[data-look="evening"] .button-primary:hover { background: #e0cb8d; }
+html[data-look="evening"] .calendar-status[data-state="success"] { color: #c3d0a7; }
+html[data-look="evening"] button:focus-visible,
+html[data-look="evening"] input:focus-visible,
+html[data-look="evening"] a:focus-visible { outline-color: #e1cb88; }
+
+@media (max-width: 760px) {
+  html[data-look="field-guide"] .wallpaper-art .seasonal-emblem { opacity: .2; }
+  html[data-look="evening"] .wallpaper-art .seasonal-emblem { opacity: .2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-look="field-guide"] *,
+  html[data-look="evening"] * { scroll-behavior: auto; }
+}

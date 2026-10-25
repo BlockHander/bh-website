@@ -7,11 +7,20 @@
   <meta name="theme-color" content="#e5b89d">
   <meta name="description" content="A living calendar wallpaper that shows the date, month, and the information you choose.">
   <title>Living Calendar Wallpaper</title>
+  <script>
+    (() => {
+      const look = new URLSearchParams(window.location.search).get("look");
+      if (["seasonal", "field-guide", "evening"].includes(look)) {
+        document.documentElement.dataset.look = look;
+      }
+    })();
+  </script>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./style-directions.css">
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -125,9 +134,6 @@
           </g>
         </g>
       </svg>
-      <div class="wallpaper-topline">
-        <span class="wallpaper-wordmark">BETTER CREATING <i></i> LIVING CALENDAR</span>
-      </div>
 
       <div class="wallpaper-layout">
         <div class="wallpaper-date-block">
@@ -167,9 +173,6 @@
         </div>
       </div>
 
-      <div class="wallpaper-footer">
-        <span data-palette-label>OCTOBER · NORTHERN HEMISPHERE</span>
-      </div>
     </div>
 
     <button class="customize-button" type="button" data-open-editor aria-haspopup="dialog" aria-controls="settings-dialog">
@@ -191,17 +194,43 @@
 
         <section class="control-section palette-section" aria-labelledby="palette-heading">
           <div class="control-heading">
-            <div><h2 id="palette-heading">Seasonal background</h2></div>
+            <div><h2 id="palette-heading">Seasonal background</h2><p>Every month has its own artwork, palette, and mood.</p></div>
           </div>
           <div class="month-stepper">
             <button class="step-button" type="button" data-previous-month aria-label="Previous palette month">←</button>
-            <div class="step-readout"><strong data-step-month>October</strong></div>
+            <div class="step-readout"><strong data-step-month>October</strong><span data-step-season>Warm light, late autumn</span></div>
             <button class="step-button" type="button" data-next-month aria-label="Next palette month">→</button>
           </div>
           <div class="month-picker" role="group" aria-label="Choose a seasonal palette" data-month-picker></div>
           <div class="toggle-row follow-month-row">
             <span><strong>Follow today’s month</strong><small data-follow-status>Background updates when the month turns.</small></span>
             <button class="switch" type="button" data-toggle-follow-month aria-pressed="true" aria-label="Pause automatic monthly background"><span></span></button>
+          </div>
+        </section>
+
+        <section class="control-section" aria-labelledby="design-heading">
+          <div class="control-heading"><div><h2 id="design-heading">Wallpaper style</h2><p>Choose a look for every month.</p></div></div>
+          <div class="design-choices" role="group" aria-labelledby="design-heading">
+            <button class="design-choice" type="button" data-design-choice="seasonal" aria-pressed="true" title="Soft seasonal colors with open typography">
+              <span class="design-choice-preview design-preview-seasonal" aria-hidden="true"><i></i><b></b></span>
+              <span class="design-choice-label">Seasonal wash</span>
+            </button>
+            <button class="design-choice" type="button" data-design-choice="field-guide" aria-pressed="false" title="A mineral field-guide palette with botanical detail">
+              <span class="design-choice-preview design-preview-field-guide" aria-hidden="true"><i></i><b></b></span>
+              <span class="design-choice-label">Field guide</span>
+            </button>
+            <button class="design-choice" type="button" data-design-choice="evening" aria-pressed="false" title="A quiet spruce palette with warm highlights">
+              <span class="design-choice-preview design-preview-evening" aria-hidden="true"><i></i><b></b></span>
+              <span class="design-choice-label">Evening grove</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="control-section" aria-labelledby="treatment-heading">
+          <div class="control-heading"><div><h2 id="treatment-heading">Color treatment</h2></div></div>
+          <div class="segmented-control" role="group" aria-label="Color treatment">
+            <button type="button" data-style-choice="gradient" aria-pressed="true"><span class="style-swatch style-swatch-gradient" aria-hidden="true"></span>Gradient</button>
+            <button type="button" data-style-choice="solid" aria-pressed="false"><span class="style-swatch style-swatch-solid" aria-hidden="true"></span>Solid</button>
           </div>
         </section>
 
@@ -246,14 +275,6 @@
           </form>
           <p class="calendar-status" data-weather-status role="status" aria-live="polite"></p>
           <p class="privacy-note">Your selected location is saved with this device’s wallpaper settings. Weather data by Open-Meteo.</p>
-        </section>
-
-        <section class="control-section" aria-labelledby="treatment-heading">
-          <div class="control-heading"><div><h2 id="treatment-heading">Color treatment</h2></div></div>
-          <div class="segmented-control" role="group" aria-label="Color treatment">
-            <button type="button" data-style-choice="gradient" aria-pressed="true"><span class="style-swatch style-swatch-gradient" aria-hidden="true"></span>Gradient</button>
-            <button type="button" data-style-choice="solid" aria-pressed="false"><span class="style-swatch style-swatch-solid" aria-hidden="true"></span>Solid</button>
-          </div>
         </section>
 
         <section class="control-section" aria-labelledby="season-heading">
