@@ -564,7 +564,6 @@ function render() {
   document.querySelector("[data-wallpaper-weekday]").textContent = weekday;
   document.querySelector("[data-calendar-title]").textContent = formatLocaleUppercase(calendarMonthName);
   document.querySelector("[data-calendar-year]").textContent = formatSystemDate(calendarMonthDate, { year: "numeric" });
-  document.querySelector("[data-palette-label]").textContent = `${month.name.toUpperCase()} · ${state.hemisphere === "north" ? "NORTHERN" : "SOUTHERN"} HEMISPHERE`;
   document.querySelector("[data-step-month]").textContent = month.name;
   document.querySelector("[data-step-season]").textContent = month.season;
   agendaDate.textContent = formatLocaleUppercase(formatSystemDate(date, { year: "numeric", month: "2-digit", day: "2-digit" }));
