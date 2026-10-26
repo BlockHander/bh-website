@@ -159,7 +159,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .customize-button:active { transform: scale(.98); }
 body[data-editor-open="true"] .customize-button { visibility: hidden; opacity: 0; pointer-events: none; }
 html.is-plash-app:not(.plash-is-browsing-mode) .customize-button { visibility: hidden; opacity: 0; pointer-events: none; }
-html.is-plash-app.plash-is-browsing-mode button { display: none !important; }
+html.is-plash-app:not(.plash-is-browsing-mode) button { display: none !important; }
 .customize-glyph { display: grid; gap: 3px; width: 13px; }
 .customize-glyph i { height: 1.5px; display: block; border-radius: 2px; background: currentColor; }
 .customize-glyph i:nth-child(2) { width: 8px; }
