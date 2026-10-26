@@ -255,6 +255,8 @@ html.is-plash-app:not(.plash-is-browsing-mode) button { display: none !important
 .calendar-source-name { overflow: hidden; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .calendar-source-status { color: var(--ink-muted); font-size: 11px; }
 .calendar-source-status[data-state="error"] { color: #9b3934; }
+.calendar-source-rename { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.calendar-source-rename-input { width: 100%; min-width: 0; min-height: 32px; padding: 0 8px; border: 1px solid var(--rule-strong); border-radius: 7px; background: #fff; color: var(--ink); font-family: var(--mono); font-size: 11px; }
 .calendar-source-actions { display: flex; align-items: center; flex: 0 0 auto; gap: 10px; }
 .calendar-source-action { min-height: 32px; padding: 4px 2px; border: 0; border-radius: 4px; background: transparent; color: var(--accent); font-size: 11px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .calendar-source-action:hover { color: #203d2b; }
@@ -406,7 +408,7 @@ html.is-plash-app:not(.plash-is-browsing-mode) button { display: none !important
   .customize-button:hover { background: rgb(33 45 40 / 94%); box-shadow: 0 8px 26px rgb(0 0 0 / 24%); }
   .settings-dialog { border-color: rgb(220 232 222 / 12%); box-shadow: 0 24px 74px rgb(0 0 0 / 44%), 0 4px 12px rgb(0 0 0 / 28%); }
   .settings-dialog::backdrop { background: rgb(0 0 0 / 40%); }
-.dialog-close, .month-stepper, .follow-month-row, .layout-choice, .calendar-form input, .weather-location-input, .format-select, .weather-selected-location, .button-subtle { border-color: var(--rule); background: #26312b; color: var(--ink); }
+.dialog-close, .month-stepper, .follow-month-row, .layout-choice, .calendar-form input, .calendar-source-rename-input, .weather-location-input, .format-select, .weather-selected-location, .button-subtle { border-color: var(--rule); background: #26312b; color: var(--ink); }
   .dialog-close:hover, .step-button:hover, .month-choice:hover, .button-subtle:hover { background: #303c34; }
   .step-button { color: var(--ink-muted); }
   .month-choice[aria-pressed="true"] { border-color: #617768; background: #304037; color: var(--ink); }

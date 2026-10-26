@@ -871,6 +871,13 @@ function renderCalendarList() {
 
     const actions = document.createElement("div");
     actions.className = "calendar-source-actions";
+    const rename = document.createElement("button");
+    rename.className = "calendar-source-action";
+    rename.type = "button";
+    rename.textContent = "Rename";
+    rename.setAttribute("aria-label", `Change label for ${calendar.name}`);
+    rename.dataset.calendarAction = "rename";
+    rename.dataset.calendarId = calendar.id;
     const refresh = document.createElement("button");
     refresh.className = "calendar-source-action";
     refresh.type = "button";
@@ -886,7 +893,7 @@ function renderCalendarList() {
     remove.setAttribute("aria-label", `Remove ${calendar.name}`);
     remove.dataset.calendarAction = "remove";
     remove.dataset.calendarId = calendar.id;
-    actions.append(refresh, remove);
+    actions.append(rename, refresh, remove);
     row.append(info, actions);
     calendarList.append(row);
   }
@@ -1424,11 +1431,62 @@ calendarDropzone.addEventListener("drop", (event) => {
 });
 
 refreshAllButton.addEventListener("click", () => refreshCalendars());
+calendarList.addEventListener("submit", (event) => {
+  const form = event.target.closest("[data-calendar-rename-form]");
+  if (!form) return;
+  event.preventDefault();
+  const calendar = state.calendars.find((entry) => entry.id === form.dataset.calendarId);
+  if (!calendar) return;
+  const input = form.querySelector("[name='calendar-label']");
+  const name = input.value.trim().slice(0, 60);
+  if (!name) {
+    updateCalendarStatus("Enter a calendar label.", "error");
+    input.focus();
+    return;
+  }
+  calendar.name = name;
+  persist();
+  render();
+  updateCalendarStatus(`Calendar label changed to ${name}.`, "success");
+});
 calendarList.addEventListener("click", async (event) => {
+  const cancelRename = event.target.closest("[data-cancel-calendar-rename]");
+  if (cancelRename) {
+    renderCalendarList();
+    return;
+  }
   const button = event.target.closest("[data-calendar-action]");
   if (!button) return;
   const calendar = state.calendars.find((entry) => entry.id === button.dataset.calendarId);
   if (!calendar) return;
+  if (button.dataset.calendarAction === "rename") {
+    const form = document.createElement("form");
+    form.className = "calendar-source-rename";
+    form.dataset.calendarRenameForm = "";
+    form.dataset.calendarId = calendar.id;
+    const input = document.createElement("input");
+    input.className = "calendar-source-rename-input";
+    input.type = "text";
+    input.name = "calendar-label";
+    input.maxLength = 60;
+    input.required = true;
+    input.value = calendar.name;
+    input.setAttribute("aria-label", `Calendar label for ${calendar.name}`);
+    const save = document.createElement("button");
+    save.className = "calendar-source-action";
+    save.type = "submit";
+    save.textContent = "Save";
+    const cancel = document.createElement("button");
+    cancel.className = "calendar-source-action";
+    cancel.type = "button";
+    cancel.textContent = "Cancel";
+    cancel.dataset.cancelCalendarRename = "";
+    form.append(input, save, cancel);
+    button.closest(".calendar-source-info").querySelector(".calendar-source-name").replaceWith(form);
+    input.focus();
+    input.select();
+    return;
+  }
   if (button.dataset.calendarAction === "refresh") {
     await refreshCalendar(calendar.id);
     return;
