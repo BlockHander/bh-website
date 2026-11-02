@@ -1,4 +1,49 @@
-/* Optional visual directions for the style-explorations.html preview. */
+/* Visual directions shared by the app and style-explorations.html preview. */
+
+html[data-look="classic"] {
+  --display: "Fraunces", Georgia, serif;
+}
+
+html[data-look="classic"] .wallpaper-art::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 39vw 39vw at 76vw -5vh, transparent calc(100% - 1px), color-mix(in srgb, var(--wallpaper-ink) 11%, transparent) 100%),
+    radial-gradient(ellipse 45vw 45vw at 76vw -5vh, transparent calc(100% - 1px), color-mix(in srgb, var(--wallpaper-ink) 8%, transparent) 100%);
+  content: "";
+  pointer-events: none;
+}
+
+html[data-look="classic"] .seasonal-art,
+html[data-look="classic"] .wallpaper-art[data-style="solid"] .seasonal-art { display: none; }
+html[data-look="classic"] .wallpaper-layout {
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: 14vh 11vw 14vh 9vw;
+}
+html[data-look="classic"] .wallpaper-month,
+html[data-look="classic"] .wallpaper-weekday {
+  font-family: var(--mono);
+  font-size: clamp(12px, .9vw, 15px);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+html[data-look="classic"] .calendar-cell.is-today {
+  position: static;
+  isolation: auto;
+  background: var(--wallpaper-today-bg, var(--wallpaper-ink));
+  color: var(--wallpaper-today-ink, var(--wallpaper-light));
+}
+html[data-look="classic"] .calendar-cell.is-today::before { content: none; }
+
+@media (max-width: 760px) {
+  html[data-look="classic"] .wallpaper-layout { padding: 130px 10vw 120px; }
+  html[data-look="classic"] .wallpaper-art::before {
+    background:
+      radial-gradient(ellipse 75vw 75vw at 112vw -7vh, transparent calc(100% - 1px), color-mix(in srgb, var(--wallpaper-ink) 11%, transparent) 100%),
+      radial-gradient(ellipse 88vw 88vw at 112vw -7vh, transparent calc(100% - 1px), color-mix(in srgb, var(--wallpaper-ink) 8%, transparent) 100%);
+  }
+}
 
 html[data-look="field-guide"] {
   color-scheme: light;
@@ -248,4 +293,457 @@ html[data-look="evening"] a:focus-visible { outline-color: #e1cb88; }
 @media (prefers-reduced-motion: reduce) {
   html[data-look="field-guide"] *,
   html[data-look="evening"] * { scroll-behavior: auto; }
+}
+
+/* The three canvas directions share the working wallpaper controls while
+   changing the composition, editorial type, and appearance panel. */
+html[data-look="seasonal"] {
+  color-scheme: light;
+  --display: "Newsreader", Georgia, serif;
+  --ink: #293b33;
+  --ink-muted: #68756b;
+  --ink-soft: #7d887d;
+  --paper: #f7f5ee;
+  --rule: #e5e2d7;
+  --rule-strong: #cbcfc3;
+  --accent: #59735d;
+  --accent-wash: #eaf0e7;
+  --direction-control-bg: #fbfaf6;
+  --direction-selected-bg: #eaf0e7;
+  --direction-card-radius: 14px;
+  background: #e8e5dc;
+}
+
+html[data-look="seasonal"] .wallpaper-art {
+  --wallpaper-base: color-mix(in srgb, var(--palette-base) 65%, #e7c4b0) !important;
+  --wallpaper-deep: color-mix(in srgb, var(--palette-deep) 52%, #6f8f78) !important;
+  --wallpaper-light: color-mix(in srgb, var(--palette-light) 58%, #f3d9bd) !important;
+  --wallpaper-ink: #293b33 !important;
+  --wallpaper-today-bg: #4f6c55 !important;
+  --wallpaper-today-ink: #f7f4e9 !important;
+  background:
+    radial-gradient(ellipse at 78% 12%, rgb(255 255 255 / 42%), transparent 37%),
+    linear-gradient(125deg,
+      color-mix(in srgb, #f3d9bd 75%, var(--palette-light) 25%),
+      color-mix(in srgb, #e7c4b0 76%, var(--palette-base) 24%) 57%,
+      color-mix(in srgb, #bfcec0 82%, var(--palette-deep) 18%)) !important;
+}
+
+html[data-look="seasonal"] .wallpaper-art[data-style="solid"] { background: var(--wallpaper-base) !important; }
+
+html[data-look="field-guide"] {
+  color-scheme: light;
+  --display: "Newsreader", Georgia, serif;
+  --ink: #344239;
+  --ink-muted: #70796d;
+  --ink-soft: #818779;
+  --paper: #f0eee2;
+  --rule: #d9d9ca;
+  --rule-strong: #b9c2b2;
+  --accent: #567257;
+  --accent-wash: #e3e7d8;
+  --direction-control-bg: #f7f5e9;
+  --direction-selected-bg: #e3e7d8;
+  --direction-card-radius: 7px;
+  background: #d9ded2;
+}
+
+html[data-look="field-guide"] .wallpaper-art {
+  --wallpaper-base: color-mix(in srgb, #ccd5c0 84%, var(--palette-base) 16%) !important;
+  --wallpaper-deep: color-mix(in srgb, #839783 76%, var(--palette-deep) 24%) !important;
+  --wallpaper-light: color-mix(in srgb, #e8e8d7 84%, var(--palette-light) 16%) !important;
+  --wallpaper-ink: #344239 !important;
+  --wallpaper-today-bg: #536e54 !important;
+  --wallpaper-today-ink: #f5f1df !important;
+  background:
+    radial-gradient(ellipse at 78% 12%, rgb(255 255 255 / 35%), transparent 39%),
+    linear-gradient(150deg,
+      color-mix(in srgb, #e8e8d7 88%, var(--palette-light) 12%),
+      color-mix(in srgb, #ccd5c0 88%, var(--palette-base) 12%) 57%,
+      color-mix(in srgb, #aab89d 84%, var(--palette-deep) 16%)) !important;
+}
+
+html[data-look="field-guide"] .wallpaper-art[data-style="solid"] {
+  background: color-mix(in srgb, var(--wallpaper-base) 72%, #efeddc) !important;
+}
+
+html[data-look="evening"] {
+  color-scheme: dark;
+  --display: "Newsreader", Georgia, serif;
+  --ink: #e8e7d8;
+  --ink-muted: #b7c0ae;
+  --ink-soft: #a6b2a2;
+  --paper: #192a23;
+  --rule: #3b5145;
+  --rule-strong: #526b59;
+  --accent: #d0b66f;
+  --accent-wash: #30483a;
+  --direction-control-bg: #21362d;
+  --direction-selected-bg: #30483a;
+  --direction-card-radius: 12px;
+  background: #17251f;
+}
+
+html[data-look="evening"] .wallpaper-art {
+  --wallpaper-base: color-mix(in srgb, var(--palette-base) 18%, #1d2c27) !important;
+  --wallpaper-deep: color-mix(in srgb, var(--palette-deep) 18%, #14211f) !important;
+  --wallpaper-light: color-mix(in srgb, var(--palette-light) 14%, #354035) !important;
+  --wallpaper-ink: #e8e7d8 !important;
+  --wallpaper-today-bg: #d0b66f !important;
+  --wallpaper-today-ink: #26362d !important;
+  background:
+    radial-gradient(ellipse 53% 49% at 86% 5%, color-mix(in srgb, var(--palette-base) 24%, #28382f), transparent 86%),
+    linear-gradient(137deg, #1b2c27 0%, color-mix(in srgb, var(--palette-deep) 20%, #20322b) 56%, #14211e 100%) !important;
+}
+
+html[data-look="evening"] .wallpaper-art[data-style="solid"] {
+  background: color-mix(in srgb, var(--palette-base) 18%, #1d2c27) !important;
+}
+
+html[data-look="seasonal"] .wallpaper-art::after,
+html[data-look="field-guide"] .wallpaper-art::after,
+html[data-look="evening"] .wallpaper-art::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.17'/%3E%3C/svg%3E");
+  content: "";
+  opacity: .16;
+  pointer-events: none;
+}
+
+html[data-look="seasonal"] .wallpaper-topline { top: 43px; right: max(5vw, 548px); left: clamp(28px, 4.3vw, 68px); }
+html[data-look="seasonal"] .wallpaper-wordmark[data-direction-only] i,
+html[data-look="field-guide"] .wallpaper-wordmark[data-direction-only] i,
+html[data-look="evening"] .wallpaper-wordmark[data-direction-only] i { width: 22px; height: 1px; border-radius: 0; }
+html[data-look="field-guide"] .wallpaper-topline { top: 43px; right: 73px; left: auto; justify-content: flex-end; }
+html[data-look="field-guide"] .wallpaper-wordmark { color: #536451; }
+html[data-look="evening"] .wallpaper-topline { top: 43px; right: max(5vw, 548px); left: clamp(28px, 4.3vw, 68px); }
+html[data-look="evening"] .wallpaper-wordmark { color: #c2c5ae; }
+
+html[data-look="seasonal"] .wallpaper-month,
+html[data-look="field-guide"] .wallpaper-month,
+html[data-look="evening"] .wallpaper-month {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+html[data-look="seasonal"] .wallpaper-weekday,
+html[data-look="field-guide"] .wallpaper-weekday,
+html[data-look="evening"] .wallpaper-weekday {
+  margin-top: 1.6em;
+  padding-left: 6px;
+  font-family: var(--ui);
+  font-size: 12px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+}
+html[data-look="seasonal"] .wallpaper-date-block strong,
+html[data-look="field-guide"] .wallpaper-date-block strong,
+html[data-look="evening"] .wallpaper-date-block strong {
+  margin: -7px 0 -19px;
+  font-family: var(--display);
+  font-size: clamp(150px, 11.65vw, 196px);
+  font-weight: 400;
+  letter-spacing: -.08em;
+  line-height: 1;
+}
+html[data-look="field-guide"] .wallpaper-date-block strong { letter-spacing: -.095em; }
+html[data-look="evening"] .wallpaper-date-block strong { color: #ede8d1; font-size: clamp(150px, 12vw, 190px); }
+html[data-look="evening"] .wallpaper-month,
+html[data-look="evening"] .wallpaper-weekday { color: #d8d0a8; }
+
+html[data-look="seasonal"] .wallpaper-widget,
+html[data-look="field-guide"] .wallpaper-widget,
+html[data-look="evening"] .wallpaper-widget {
+  border-radius: 17px;
+  background: var(--direction-widget-bg, color-mix(in srgb, var(--wallpaper-light) 67%, transparent));
+  color: var(--wallpaper-ink);
+  box-shadow: 0 14px 42px rgb(31 42 35 / 8%);
+  backdrop-filter: blur(18px);
+}
+html[data-look="seasonal"] .wallpaper-widget { --direction-widget-bg: rgb(249 247 239 / 67%); border-color: rgb(48 68 53 / 17%); }
+html[data-look="field-guide"] .wallpaper-widget { --direction-widget-bg: rgb(245 243 228 / 75%); border-color: rgb(47 69 49 / 20%); }
+html[data-look="evening"] .wallpaper-widget { --direction-widget-bg: rgb(23 41 34 / 81%); border-color: rgb(220 214 179 / 20%); box-shadow: 0 18px 46px rgb(0 0 0 / 16%); }
+html[data-look="seasonal"] .wallpaper-art[data-scheme="dark"] .wallpaper-widget,
+html[data-look="field-guide"] .wallpaper-art[data-scheme="dark"] .wallpaper-widget { color: #293b33; }
+
+html[data-look="seasonal"] .wallpaper-topline,
+html[data-look="field-guide"] .wallpaper-topline,
+html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; }
+
+@media (min-width: 1100px) {
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .wallpaper-layout,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-layout,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .wallpaper-layout {
+    display: block;
+    padding: 0;
+    column-gap: 0;
+  }
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block {
+    position: absolute;
+    top: 12.15vh;
+    left: clamp(32px, 4.75vw, 75px);
+    align-content: start;
+    width: max-content;
+  }
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block {
+    top: 12.15vh;
+    right: clamp(38px, 5.45vw, 86px);
+    left: auto;
+    justify-items: end;
+    text-align: right;
+  }
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block {
+    top: 15.25vh;
+    left: clamp(32px, 4.55vw, 72px);
+  }
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets {
+    position: absolute;
+    bottom: 4.02vh;
+    left: clamp(32px, 4.05vw, 64px);
+    display: flex;
+    align-items: stretch;
+    gap: 13px;
+    width: min(546px, calc(100vw - 560px));
+    max-width: 546px;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+  }
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets {
+    right: clamp(36px, 4.43vw, 70px);
+    left: auto;
+  }
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .mini-calendar,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .mini-calendar,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .mini-calendar {
+    flex: 0 1 278px;
+    width: clamp(220px, 17.6vw, 278px);
+    padding: 16px 18px 15px;
+  }
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .weather-widget,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .weather-widget,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .weather-widget {
+    flex: 0 1 255px;
+    width: clamp(200px, 16.2vw, 255px);
+    min-height: 125px;
+    padding: 15px 16px;
+  }
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"][data-has-widgets="false"] .wallpaper-widgets,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"][data-has-widgets="false"] .wallpaper-widgets,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"][data-has-widgets="false"] .wallpaper-widgets { display: none; }
+}
+
+@media (min-width: 761px) {
+  html[data-look="seasonal"] .settings-dialog,
+  html[data-look="field-guide"] .settings-dialog {
+    top: 25px;
+    bottom: 25px;
+    width: min(506px, calc(100vw - 50px));
+    max-height: none;
+  }
+  html[data-look="seasonal"] .settings-dialog { right: 25px; left: auto; border-radius: 24px; }
+  html[data-look="field-guide"] .settings-dialog {
+    right: auto;
+    left: 25px;
+    width: min(514px, calc(100vw - 50px));
+    border-radius: 8px;
+    box-shadow: 0 18px 65px rgb(43 55 42 / 15%);
+  }
+  html[data-look="evening"] .settings-dialog {
+    top: 44px;
+    right: 38px;
+    bottom: 44px;
+    left: auto;
+    width: min(495px, calc(100vw - 76px));
+    max-height: none;
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgb(0 0 0 / 35%);
+  }
+  html[data-look="seasonal"] .settings-card,
+  html[data-look="field-guide"] .settings-card,
+  html[data-look="evening"] .settings-card { height: 100%; max-height: none; padding: 14px 13px 24px; }
+  html[data-look="field-guide"] .customize-button {
+    top: 72px;
+    right: 44px;
+    border-radius: 7px;
+    background: #f2f0e1;
+    box-shadow: 0 3px 0 rgb(66 80 65 / 12%);
+  }
+}
+
+html[data-look="seasonal"] .settings-card,
+html[data-look="field-guide"] .settings-card,
+html[data-look="evening"] .settings-card { --card-top-pad: 14px; }
+html[data-look="seasonal"] .panel-heading,
+html[data-look="field-guide"] .panel-heading,
+html[data-look="evening"] .panel-heading {
+  align-items: center;
+  margin-top: calc(0px - var(--card-top-pad));
+  padding: 15px 10px 16px;
+}
+html[data-look="seasonal"] .panel-heading h1,
+html[data-look="field-guide"] .panel-heading h1,
+html[data-look="evening"] .panel-heading h1 {
+  font-family: var(--display);
+  font-size: 27px;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+html[data-look="seasonal"] .control-heading h2,
+html[data-look="field-guide"] .control-heading h2,
+html[data-look="evening"] .control-heading h2 {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+}
+html[data-look="seasonal"] .control-heading p,
+html[data-look="field-guide"] .control-heading p,
+html[data-look="evening"] .control-heading p { font-size: 10px; }
+html[data-look="seasonal"] .settings-card > .control-section,
+html[data-look="field-guide"] .settings-card > .control-section,
+html[data-look="evening"] .settings-card > .control-section {
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--direction-card-radius);
+  background: var(--direction-control-bg);
+}
+html[data-look="seasonal"] .settings-card > .control-section:nth-of-type(2),
+html[data-look="field-guide"] .settings-card > .control-section:nth-of-type(2),
+html[data-look="evening"] .settings-card > .control-section:nth-of-type(2),
+html[data-look="seasonal"] .settings-card > .control-section:nth-of-type(4),
+html[data-look="field-guide"] .settings-card > .control-section:nth-of-type(4),
+html[data-look="evening"] .settings-card > .control-section:nth-of-type(4) {
+  margin-bottom: 0;
+  border-bottom: 0;
+  border-radius: var(--direction-card-radius) var(--direction-card-radius) 0 0;
+}
+html[data-look="seasonal"] .settings-card > .control-section:nth-of-type(3),
+html[data-look="field-guide"] .settings-card > .control-section:nth-of-type(3),
+html[data-look="evening"] .settings-card > .control-section:nth-of-type(3),
+html[data-look="seasonal"] .settings-card > .control-section:nth-of-type(5),
+html[data-look="field-guide"] .settings-card > .control-section:nth-of-type(5),
+html[data-look="evening"] .settings-card > .control-section:nth-of-type(5) {
+  margin-bottom: 10px;
+  border-top: 0;
+  border-radius: 0 0 var(--direction-card-radius) var(--direction-card-radius);
+}
+html[data-look="seasonal"] .settings-card > .palette-section,
+html[data-look="field-guide"] .settings-card > .palette-section,
+html[data-look="evening"] .settings-card > .palette-section { margin-top: 2px; }
+html[data-look="seasonal"] .settings-card > .control-section:nth-of-type(3) .control-heading,
+html[data-look="field-guide"] .settings-card > .control-section:nth-of-type(3) .control-heading,
+html[data-look="evening"] .settings-card > .control-section:nth-of-type(3) .control-heading { margin-bottom: 7px; }
+html[data-look="seasonal"] .month-stepper,
+html[data-look="field-guide"] .month-stepper,
+html[data-look="evening"] .month-stepper,
+html[data-look="seasonal"] .follow-month-row,
+html[data-look="field-guide"] .follow-month-row,
+html[data-look="evening"] .follow-month-row,
+html[data-look="seasonal"] .layout-choice,
+html[data-look="field-guide"] .layout-choice,
+html[data-look="evening"] .layout-choice,
+html[data-look="seasonal"] .format-select,
+html[data-look="field-guide"] .format-select,
+html[data-look="evening"] .format-select,
+html[data-look="seasonal"] .calendar-form input,
+html[data-look="field-guide"] .calendar-form input,
+html[data-look="evening"] .calendar-form input,
+html[data-look="seasonal"] .weather-location-input,
+html[data-look="field-guide"] .weather-location-input,
+html[data-look="evening"] .weather-location-input,
+html[data-look="seasonal"] .weather-selected-location,
+html[data-look="field-guide"] .weather-selected-location,
+html[data-look="evening"] .weather-selected-location,
+html[data-look="seasonal"] .button-subtle,
+html[data-look="field-guide"] .button-subtle,
+html[data-look="evening"] .button-subtle {
+  border-color: var(--rule);
+  background: var(--direction-control-bg);
+  color: var(--ink);
+}
+html[data-look="seasonal"] .design-choice,
+html[data-look="field-guide"] .design-choice,
+html[data-look="evening"] .design-choice {
+  border-color: var(--rule);
+  border-radius: var(--direction-card-radius);
+  background: var(--direction-control-bg);
+  color: var(--ink-muted);
+}
+html[data-look="seasonal"] .design-choice[aria-pressed="true"],
+html[data-look="field-guide"] .design-choice[aria-pressed="true"],
+html[data-look="evening"] .design-choice[aria-pressed="true"] {
+  border-color: var(--rule-strong);
+  background: var(--direction-selected-bg);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgb(29 41 31 / 7%);
+}
+html[data-look="seasonal"] .segmented-control,
+html[data-look="field-guide"] .segmented-control,
+html[data-look="evening"] .segmented-control { border-color: var(--rule); background: var(--direction-control-bg); }
+html[data-look="seasonal"] .segmented-control button[aria-pressed="true"],
+html[data-look="field-guide"] .segmented-control button[aria-pressed="true"],
+html[data-look="evening"] .segmented-control button[aria-pressed="true"] {
+  border-color: var(--direction-selected-bg);
+  background: var(--direction-selected-bg);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgb(29 41 31 / 8%);
+}
+html[data-look="seasonal"] .button-primary,
+html[data-look="field-guide"] .button-primary { background: var(--accent); color: #f8f6ee; }
+html[data-look="seasonal"] .button-primary:hover { background: #49684f; }
+html[data-look="field-guide"] .button { border-radius: 6px; }
+html[data-look="field-guide"] .settings-dialog .design-choice,
+html[data-look="field-guide"] .settings-dialog .month-choice,
+html[data-look="field-guide"] .settings-dialog .layout-choice,
+html[data-look="field-guide"] .settings-dialog .button-subtle,
+html[data-look="field-guide"] .settings-dialog .calendar-form input,
+html[data-look="field-guide"] .settings-dialog .weather-location-input,
+html[data-look="field-guide"] .settings-dialog .format-select { border-radius: 6px; }
+html[data-look="field-guide"] .settings-dialog .segmented-control { border-radius: 7px; }
+html[data-look="field-guide"] .settings-dialog .segmented-control button { border-radius: 5px; }
+html[data-look="evening"] .settings-dialog { background: var(--paper); }
+html[data-look="evening"] .panel-heading,
+html[data-look="evening"] .control-section { color: var(--ink); }
+html[data-look="evening"] .dialog-close,
+html[data-look="evening"] .step-button,
+html[data-look="evening"] .month-choice,
+html[data-look="evening"] .weather-location-input,
+html[data-look="evening"] .calendar-form input,
+html[data-look="evening"] .format-select,
+html[data-look="evening"] .calendar-source-rename-input,
+html[data-look="evening"] .calendar-dropzone,
+html[data-look="evening"] .weather-selected-location,
+html[data-look="evening"] .button-subtle {
+  border-color: var(--rule);
+  background: var(--direction-control-bg);
+  color: var(--ink);
+}
+html[data-look="evening"] .button-primary { background: var(--accent); color: #26362d; }
+html[data-look="evening"] .button-primary:hover { background: #dfc77f; }
+html[data-look="evening"] .text-button,
+html[data-look="evening"] .calendar-source-action,
+html[data-look="evening"] .calendar-dropzone-button { color: var(--accent); }
+html[data-look="evening"] .calendar-status[data-state="success"] { color: #c3d0a7; }
+html[data-look="evening"] .settings-dialog::backdrop,
+html[data-look="seasonal"] .settings-dialog::backdrop,
+html[data-look="field-guide"] .settings-dialog::backdrop { background: rgb(20 30 24 / 7%); backdrop-filter: none; }
+
+@media (max-width: 760px) {
+  html[data-look="seasonal"] .wallpaper-topline,
+  html[data-look="field-guide"] .wallpaper-topline,
+  html[data-look="evening"] .wallpaper-topline {
+    top: max(26px, env(safe-area-inset-top));
+    right: 18px;
+    left: 20px;
+    justify-content: flex-start;
+  }
 }

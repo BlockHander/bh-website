@@ -200,7 +200,7 @@ html.is-plash-app:not(.plash-is-browsing-mode) button { display: none !important
 .style-swatch { width: 20px; height: 14px; display: block; border: 1px solid rgb(29 41 31 / 14%); border-radius: 3px; }
 .style-swatch-gradient { background: linear-gradient(135deg, #f1d4a1, #e5b89d 55%, #bf8f79); }
 .style-swatch-solid { background: #e5b89d; }
-.design-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.design-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 .design-choice { min-width: 0; display: grid; gap: 7px; padding: 6px; border: 1px solid var(--rule); border-radius: 10px; background: #fff; color: var(--ink-muted); text-align: left; cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease, transform 140ms var(--spring); }
 .design-choice:hover { transform: translateY(-1px); border-color: var(--rule-strong); color: var(--ink); }
 .design-choice[aria-pressed="true"] { border-color: #9caf9b; background: #edf2ec; color: var(--ink); box-shadow: 0 1px 3px rgb(29 41 31 / 7%); }
@@ -213,6 +213,9 @@ html.is-plash-app:not(.plash-is-browsing-mode) button { display: none !important
 .design-choice-preview b::after { position: absolute; top: 4px; right: 0; left: 0; height: 8px; border-top: 1px solid rgb(38 59 44 / 30%); border-bottom: 1px solid rgb(38 59 44 / 30%); content: ""; }
 .design-preview-field-guide { background: linear-gradient(150deg, #eeeedd, #c7d0b9 58%, #9ead97); }
 .design-preview-field-guide::before { background: rgb(77 106 77 / 40%); }
+.design-preview-classic { background: linear-gradient(134deg, #f1d4a1 0%, #e5b89d 52%, #bf8f79 100%); }
+.design-preview-classic::before { top: -43px; right: 3px; bottom: auto; left: auto; width: 88px; height: 88px; border: 1px solid rgb(38 59 44 / 22%); border-radius: 50%; background: transparent; box-shadow: 0 0 0 8px rgb(38 59 44 / 7%), 0 0 0 17px rgb(38 59 44 / 5%); transform: none; }
+.design-preview-classic::after { opacity: .5; }
 .design-preview-evening { border-color: rgb(221 225 206 / 18%); background: linear-gradient(145deg, #38463a, #202f2a 63%, #172521); }
 .design-preview-evening::before { background: rgb(14 26 23 / 65%); }
 .design-preview-evening::after { border-color: rgb(227 208 143 / 56%); }

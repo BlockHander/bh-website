@@ -34,7 +34,7 @@ const MAX_ICS_FILE_BYTES = 2 * 1024 * 1024;
 const systemLocale = navigator.languages?.[0] || navigator.language || Intl.DateTimeFormat().resolvedOptions().locale;
 const systemLocaleData = typeof Intl.Locale === "function" ? new Intl.Locale(systemLocale).maximize() : null;
 const query = new URLSearchParams(window.location.search);
-let previewDesign = ["seasonal", "field-guide", "evening"].includes(query.get("look")) ? query.get("look") : "";
+let previewDesign = ["classic", "seasonal", "field-guide", "evening"].includes(query.get("look")) ? query.get("look") : "";
 const pageBaseUrl = new URL("./", window.location.href);
 const localHostnames = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const localApiBaseUrl = localHostnames.has(window.location.hostname) ? new URL("api/", pageBaseUrl) : null;
@@ -241,7 +241,7 @@ function normalizeSettings(value) {
       : [];
   return {
     month: intParam(source.month, defaults.month, 0, 11),
-    design: ["seasonal", "field-guide", "evening"].includes(source.design) ? source.design : defaults.design,
+    design: ["classic", "seasonal", "field-guide", "evening"].includes(source.design) ? source.design : defaults.design,
     style: source.style === "solid" ? "solid" : "gradient",
     hemisphere: source.hemisphere === "south" ? "south" : "north",
     layout: ["combined", "big-date", "calendar", "minimal"].includes(source.layout) ? source.layout : "combined",
@@ -548,8 +548,11 @@ function render() {
   wallpaper.dataset.scene = palette.scene;
   document.querySelector('meta[name="theme-color"]').setAttribute("content", palette.base);
   wallpaper.dataset.style = state.style;
-  wallpaper.dataset.design = activeDesign();
-  document.documentElement.dataset.look = activeDesign();
+  const design = activeDesign();
+  wallpaper.dataset.design = design;
+  document.documentElement.dataset.look = design;
+  document.querySelectorAll("[data-classic-only]").forEach((element) => { element.hidden = design !== "classic"; });
+  document.querySelectorAll("[data-direction-only]").forEach((element) => { element.hidden = design === "classic"; });
   wallpaper.dataset.layout = state.layout;
   wallpaper.dataset.ratio = state.ratio;
   wallpaper.dataset.showCalendar = String(state.showCalendar);
@@ -559,6 +562,7 @@ function render() {
   wallpaper.dataset.hasWidgets = String(hasWidgets);
   wallpaper.setAttribute("aria-label", `${calendarMonthYear} calendar wallpaper with ${month.name} seasonal colors`);
 
+  document.querySelector("[data-wallpaper-ratio]").textContent = state.ratio;
   document.querySelector("[data-wallpaper-month]").textContent = calendarMonthYear;
   document.querySelector("[data-wallpaper-day]").textContent = formatSystemNumber(date.getDate());
   document.querySelector("[data-wallpaper-weekday]").textContent = weekday;
