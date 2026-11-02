@@ -508,10 +508,10 @@ html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: 
     bottom: 4.02vh;
     left: clamp(32px, 4.05vw, 64px);
     display: flex;
-    align-items: stretch;
-    gap: 13px;
-    width: min(546px, calc(100vw - 560px));
-    max-width: 546px;
+    align-items: flex-end;
+    gap: 14px;
+    width: min(1000px, calc(100vw - 128px));
+    max-width: 1000px;
     max-height: none;
     overflow: visible;
     padding: 0;
@@ -523,17 +523,26 @@ html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: 
   html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .mini-calendar,
   html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .mini-calendar,
   html[data-look="evening"] .wallpaper-art[data-layout="combined"] .mini-calendar {
-    flex: 0 1 278px;
-    width: clamp(220px, 17.6vw, 278px);
-    padding: 16px 18px 15px;
+    flex: 0 0 clamp(220px, 17vw, 270px);
+    width: auto;
+    padding: 15px 16px 14px;
+  }
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .agenda-preview,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .agenda-preview,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .agenda-preview {
+    flex: 1 1 360px;
+    width: auto;
+    min-width: 250px;
+    max-width: 450px;
   }
   html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .weather-widget,
   html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .weather-widget,
   html[data-look="evening"] .wallpaper-art[data-layout="combined"] .weather-widget {
-    flex: 0 1 255px;
-    width: clamp(200px, 16.2vw, 255px);
+    flex: 0 1 clamp(230px, 17vw, 270px);
+    width: auto;
+    min-width: 220px;
     min-height: 125px;
-    padding: 15px 16px;
+    padding: 14px 14px 13px;
   }
   html[data-look="seasonal"] .wallpaper-art[data-layout="combined"][data-has-widgets="false"] .wallpaper-widgets,
   html[data-look="field-guide"] .wallpaper-art[data-layout="combined"][data-has-widgets="false"] .wallpaper-widgets,
@@ -575,6 +584,19 @@ html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: 
     border-radius: 7px;
     background: #f2f0e1;
     box-shadow: 0 3px 0 rgb(66 80 65 / 12%);
+  }
+}
+
+@media (min-width: 1100px) and (max-aspect-ratio: 4 / 3) {
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .wallpaper-date-block {
+    top: clamp(88px, 10vh, 150px);
+  }
+  html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets,
+  html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets,
+  html[data-look="evening"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets {
+    bottom: clamp(180px, 20vh, 320px);
   }
 }
 
