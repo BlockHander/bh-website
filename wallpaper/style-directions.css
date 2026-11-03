@@ -508,7 +508,7 @@ html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: 
     bottom: 4.02vh;
     left: clamp(32px, 4.05vw, 64px);
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     gap: 14px;
     width: min(1000px, calc(100vw - 128px));
     max-width: 1000px;
@@ -554,6 +554,7 @@ html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: 
   html[data-look="field-guide"] .settings-dialog {
     top: 25px;
     bottom: 25px;
+    height: calc(100dvh - 50px);
     width: min(506px, calc(100vw - 50px));
     max-height: none;
   }
@@ -570,6 +571,7 @@ html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: 
     right: 38px;
     bottom: 44px;
     left: auto;
+    height: calc(100dvh - 88px);
     width: min(495px, calc(100vw - 76px));
     max-height: none;
     border-radius: 18px;
@@ -596,7 +598,7 @@ html[data-look="evening"] .wallpaper-topline { font-size: 10px; letter-spacing: 
   html[data-look="seasonal"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets,
   html[data-look="field-guide"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets,
   html[data-look="evening"] .wallpaper-art[data-layout="combined"] .wallpaper-widgets {
-    bottom: clamp(180px, 20vh, 320px);
+    bottom: clamp(36px, 4vh, 64px);
   }
 }
 
@@ -768,4 +770,16 @@ html[data-look="field-guide"] .settings-dialog::backdrop { background: rgb(20 30
     left: 20px;
     justify-content: flex-start;
   }
+}
+
+@media (max-height: 300px) and (max-width: 760px) {
+  html[data-look] .wallpaper-topline { top: 8px; right: 12px; left: 14px; }
+  html[data-look] .wallpaper-layout { align-content: start; row-gap: 28px; padding-top: 34px; padding-bottom: 24px; }
+  html[data-look] .wallpaper-date-block strong { margin: 0; font-size: clamp(64px, 22vh, 86px); }
+  html[data-look] .wallpaper-weekday { margin-top: .45em; }
+  html[data-look] .wallpaper-wordmark { padding-right: 0; }
+  html[data-look] .wallpaper-preview-label { display: none; }
+  html[data-look] .wallpaper-art[data-layout="big-date"] .wallpaper-date-block strong { font-size: clamp(78px, 26vh, 108px); }
+  html[data-look] .wallpaper-art[data-layout="calendar"] .wallpaper-date-block strong { font-size: clamp(58px, 19vh, 78px); }
+  html[data-look] .customize-button { top: 8px; right: 8px; min-height: 32px; }
 }
