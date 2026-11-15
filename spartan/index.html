@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#e8e8df">
+  <meta name="description" content="Download the Parallels OpenGL workaround for Spartan '14.">
+  <title>Parallels OpenGL Fix — Spartan | blockhander.hu</title>
+  <link rel="stylesheet" href="/spartan/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Blockhander home">
+        <span class="wordmark-mark" aria-hidden="true">B</span>
+        <span>BLOCKHANDER</span>
+      </a>
+      <span class="header-section"><span class="status-dot" aria-hidden="true"></span> SUPPORT FILES <span class="header-divider">/</span> SPARTAN</span>
+    </header>
+
+    <main class="download-page">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span> PARALLELS DESKTOP <span class="eyebrow-separator">·</span> WINDOWS</p>
+          <h1 id="page-title">OpenGL<br><span>workaround</span></h1>
+          <p class="intro">A small batch file for the Parallels graphics issue affecting Spartan ’14. Download it, review what it changes, then run it on the Windows virtual machine.</p>
+          <a class="download-button" href="/spartan/spartan_fix_parallels.bat" download="spartan_fix_parallels.bat">
+            <span class="download-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.75v10.5m0 0 4-4m-4 4-4-4M4.75 16.5v2.75h14.5V16.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span>Download batch file</span>
+            <span class="download-arrow" aria-hidden="true">↗</span>
+          </a>
+          <div class="file-meta">
+            <span class="file-type">.BAT</span>
+            <span>spartan_fix_parallels.bat</span>
+            <span class="meta-divider" aria-hidden="true"></span>
+            <span>3.9 KiB</span>
+          </div>
+        </div>
+
+        <aside class="file-card" aria-label="What the script changes">
+          <div class="card-topline">
+            <span class="card-label">SCRIPT NOTES</span>
+            <span class="card-index">01 — 03</span>
+          </div>
+          <div class="registry-illustration" aria-hidden="true">
+            <span class="registry-rail"></span>
+            <span class="registry-node registry-node--one"></span>
+            <span class="registry-node registry-node--two"></span>
+            <span class="registry-node registry-node--three"></span>
+            <span class="registry-bracket"></span>
+            <span class="registry-caption">DISPLAY CLASS<br>OPENGL KEYS</span>
+            <span class="registry-mark">↘</span>
+          </div>
+          <ol class="change-list">
+            <li><span class="step-number">01</span><span>Requests administrator access.</span></li>
+            <li><span class="step-number">02</span><span>Uses PowerShell to change registry permissions, then renames active OpenGL driver values with a <code>_disabled</code> suffix.</span></li>
+            <li><span class="step-number">03</span><span>Schedules a Windows restart after a successful change.</span></li>
+          </ol>
+          <div class="card-footer"><span class="footer-pip" aria-hidden="true"></span> WINDOWS BATCH SCRIPT <span class="footer-line" aria-hidden="true"></span> 3.9 KIB</div>
+        </aside>
+      </section>
+
+      <section class="notice" aria-label="Important information before running">
+        <span class="notice-icon" aria-hidden="true">!</span>
+        <div>
+          <h2>Review before running</h2>
+          <p>This file launches embedded PowerShell with execution-policy bypass, changes Windows registry permissions and OpenGL driver values, and requests administrator rights. If successful, it restarts Windows after five seconds. Save your work first.</p>
+        </div>
+        <span class="notice-code" aria-hidden="true">READ<br>FIRST</span>
+      </section>
+
+      <footer class="page-footer">
+        <span>BLOCKHANDER.HU <span class="footer-slash">/</span> SPARTAN</span>
+        <span>FILE <span class="footer-slash">·</span> SPARTAN_FIX_PARALLELS.BAT</span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
