@@ -1,80 +1,94 @@
 <!doctype html>
-<html lang="en">
+<html lang="hu">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#e8e8df">
-  <meta name="description" content="Download the Parallels OpenGL workaround for Spartan '14.">
-  <title>Parallels OpenGL Fix — Spartan | blockhander.hu</title>
+  <meta name="theme-color" content="#dce6f0">
+  <meta name="description" content="Töltsd le a Spartan ’14 Parallels grafikai hibájához készült Windows javítófájlt.">
+  <title>Spartan ’14 grafikai javítása | BlockHander</title>
+  <link rel="icon" href="/spartan/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/spartan/icon-512.png" type="image/png" sizes="512x512">
+  <link rel="apple-touch-icon" href="/spartan/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Spartan ’14 grafikai javítása | BlockHander">
+  <meta property="og:description" content="Windows javítófájl Spartan ’14-hez Parallels Desktop alatt.">
+  <meta property="og:url" content="https://blockhander.hu/spartan/">
+  <meta property="og:image" content="https://blockhander.hu/spartan/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="OpenGL-javítás Spartan ’14-hez — BlockHander, Windows kötegelt fájl">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" href="/spartan/fonts/selawik-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/spartan/fonts/selawik-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/spartan/fonts/selawik-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/spartan/styles.css">
 </head>
 <body>
   <div class="page-shell">
     <header class="site-header">
-      <a class="wordmark" href="/" aria-label="Blockhander home">
-        <span class="wordmark-mark" aria-hidden="true">B</span>
-        <span>BLOCKHANDER</span>
-      </a>
-      <span class="header-section"><span class="status-dot" aria-hidden="true"></span> SUPPORT FILES <span class="header-divider">/</span> SPARTAN</span>
+      <a class="wordmark" href="/" aria-label="Ugrás a BlockHander főoldalára">BLOCKHANDER</a>
+      <span class="section-name">Spartan ’14 segédoldal</span>
     </header>
 
-    <main class="download-page">
-      <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-          <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span> PARALLELS DESKTOP <span class="eyebrow-separator">·</span> WINDOWS</p>
-          <h1 id="page-title">OpenGL<br><span>workaround</span></h1>
-          <p class="intro">A small batch file for the Parallels graphics issue affecting Spartan ’14. Download it, review what it changes, then run it on the Windows virtual machine.</p>
-          <a class="download-button" href="/spartan/spartan_fix_parallels.bat" download="spartan_fix_parallels.bat">
-            <span class="download-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.75v10.5m0 0 4-4m-4 4-4-4M4.75 16.5v2.75h14.5V16.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            <span>Download batch file</span>
-            <span class="download-arrow" aria-hidden="true">↗</span>
-          </a>
-          <div class="file-meta">
-            <span class="file-type">.BAT</span>
-            <span>spartan_fix_parallels.bat</span>
-            <span class="meta-divider" aria-hidden="true"></span>
-            <span>3.9 KiB</span>
-          </div>
+    <main class="page-content">
+      <section class="stage" aria-labelledby="page-title">
+        <div class="heading">
+          <p class="eyebrow">Parallels Desktop <span aria-hidden="true">·</span> Windows</p>
+          <h1 id="page-title">OpenGL-javítás<br>Spartan ’14-hez</h1>
+          <p class="intro">A fájl letiltja a Parallels hardveres OpenGL-illesztőjét a Windowsban.</p>
         </div>
 
-        <aside class="file-card" aria-label="What the script changes">
-          <div class="card-topline">
-            <span class="card-label">SCRIPT NOTES</span>
-            <span class="card-index">01 — 03</span>
+        <section class="download-panel" aria-label="A Spartan javítófájl letöltése">
+          <div class="panel-heading">
+            <span class="file-glyph" aria-hidden="true"></span>
+            <span>BlockHander <span aria-hidden="true">·</span> Spartan</span>
+            <span class="file-badge">BAT</span>
           </div>
-          <div class="registry-illustration" aria-hidden="true">
-            <span class="registry-rail"></span>
-            <span class="registry-node registry-node--one"></span>
-            <span class="registry-node registry-node--two"></span>
-            <span class="registry-node registry-node--three"></span>
-            <span class="registry-bracket"></span>
-            <span class="registry-caption">DISPLAY CLASS<br>OPENGL KEYS</span>
-            <span class="registry-mark">↘</span>
+          <div class="panel-content">
+            <div class="file-row">
+              <span class="large-file" aria-hidden="true"></span>
+              <div class="file-copy">
+                <p class="file-name">spartan_fix_parallels.bat</p>
+                <p class="file-meta">Windows kötegelt fájl <span aria-hidden="true">·</span> 3,9 KiB</p>
+              </div>
+            </div>
+
+            <div class="warning" role="note" aria-label="Fontos, futtatás előtt">
+              <span class="warning-icon" aria-hidden="true">!</span>
+              <p><strong>Előtte mentsd el a munkád.</strong> A fájl rendszergazdai engedélyt kér. Sikeres módosítás után 5 másodperccel újraindítja a Windowst.</p>
+            </div>
+
+            <a class="download-button" href="/spartan/spartan_fix_parallels.bat" download="spartan_fix_parallels.bat">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Javítófájl letöltése
+            </a>
+
+            <div class="registry-preview" role="group" aria-label="Átnevezett OpenGL-beállítások">
+              <p class="registry-title">A fájl ezt a két aktív értéket nevezi át:</p>
+              <div class="registry-change"><code>OpenGLDriverName</code><span aria-hidden="true">→</span><code>OpenGLDriverName_disabled</code></div>
+              <div class="registry-change"><code>OpenGLDriverNameWow</code><span aria-hidden="true">→</span><code>OpenGLDriverNameWow_disabled</code></div>
+            </div>
+
+            <ol class="steps" aria-label="A futtatás lépései">
+              <li class="step"><strong>1. Letöltés</strong><span>A fájlt a Windows virtuális gépeden töltsd le.</span></li>
+              <li class="step"><strong>2. Futtatás</strong><span>Kattints duplán a letöltött fájlra, majd fogadd el a rendszergazdai kérést.</span></li>
+              <li class="step"><strong>3. Újraindítás</strong><span>Ha módosítás történt, a Windows 5 másodperc múlva újraindul.</span></li>
+            </ol>
           </div>
-          <ol class="change-list">
-            <li><span class="step-number">01</span><span>Requests administrator access.</span></li>
-            <li><span class="step-number">02</span><span>Uses PowerShell to change registry permissions, then renames active OpenGL driver values with a <code>_disabled</code> suffix.</span></li>
-            <li><span class="step-number">03</span><span>Schedules a Windows restart after a successful change.</span></li>
-          </ol>
-          <div class="card-footer"><span class="footer-pip" aria-hidden="true"></span> WINDOWS BATCH SCRIPT <span class="footer-line" aria-hidden="true"></span> 3.9 KIB</div>
-        </aside>
+        </section>
       </section>
 
-      <section class="notice" aria-label="Important information before running">
-        <span class="notice-icon" aria-hidden="true">!</span>
-        <div>
-          <h2>Review before running</h2>
-          <p>This file launches embedded PowerShell with execution-policy bypass, changes Windows registry permissions and OpenGL driver values, and requests administrator rights. If successful, it restarts Windows after five seconds. Save your work first.</p>
-        </div>
-        <span class="notice-code" aria-hidden="true">READ<br>FIRST</span>
+      <section class="technical-details">
+        <details>
+          <summary>Részletek a módosításról</summary>
+          <p>A fájl rendszergazdai jogosultságot kér, majd beágyazott PowerShellt futtat az <code>ExecutionPolicy Bypass</code> kapcsolóval. A kapcsoló csak erre a PowerShell-folyamatra érvényes, nem állítja át tartósan a Windows házirendjét. A szkript módosítja a grafikus illesztőprogram regisztrációs kulcsainak hozzáférését, majd az aktív <code>OpenGLDriverName</code> és <code>OpenGLDriverNameWow</code> értékeket <code>_disabled</code> végűre nevezi át. Az esetleg már létező, azonos nevű letiltott értékeket előbb törli. Ha nincs aktív OpenGL-bejegyzés, a Windows nem indul újra.</p>
+        </details>
       </section>
 
       <footer class="page-footer">
-        <span>BLOCKHANDER.HU <span class="footer-slash">/</span> SPARTAN</span>
-        <span>FILE <span class="footer-slash">·</span> SPARTAN_FIX_PARALLELS.BAT</span>
+        <span>BLOCKHANDER.HU <span aria-hidden="true">·</span> SPARTAN</span>
+        <span class="footer-file">spartan_fix_parallels.bat</span>
       </footer>
     </main>
   </div>
